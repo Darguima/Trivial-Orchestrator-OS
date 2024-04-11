@@ -5,14 +5,14 @@
 #include "commands/command_interpreter.h"
 
 char* askforcommand() {
-  char* command = (char*)malloc(MAX_COMMAND_LENGTH * sizeof(char));
-  printf("Enter a command: \n >> ");
-  if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL) {
-    perror("Error reading command\n");
-    free(command);
-    return NULL;
-  }
-  return command;
+    char* command = (char*)malloc(MAX_COMMAND_LENGTH * sizeof(char));
+    printf("Enter a command: \n >> ");
+    if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL) {
+        perror("Error reading command\n");
+        free(command);
+        return NULL;
+    }
+    return command;
 }
 
 char** command_interpreter(char* command) {
