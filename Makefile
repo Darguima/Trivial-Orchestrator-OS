@@ -4,7 +4,7 @@ build:
 	@echo "Building..."
 	$(MAKE) build_client
 	$(MAKE) build_server
-	$(MAKE) -C commands/
+	$(MAKE) compile_commands
 
 build_client:
 	@echo "Building client..."
@@ -14,8 +14,12 @@ build_server:
 	@echo "Building server..."
 	$(MAKE) -C server/
 
+compile_commands:
+	@echo "Building command binaries..."
+	$(MAKE) -C bin/
+
 clean:
 	@echo "Cleaning..."
 	$(MAKE) -C client/ clean
 	$(MAKE) -C server/ clean
-	$(MAKE) -C commands/ clean
+	$(MAKE) -C bin/ clean

@@ -1,5 +1,11 @@
 server/server
 client/client
+#bin/*
+#!bin/*.c
+#!bin/*.h
+#!bin/Makefile
+datapipe/*
+!datapipe/.gitkeep
 
 valgrind-out.txt
 .vscode
