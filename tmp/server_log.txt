@@ -1,0 +1,25 @@
+total 32
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 17:54 include
+-rw-r--r-- 1 afonso afonso  2471 Apr 25 17:54 Makefile
+-rwxr-xr-x 1 afonso afonso 16432 Apr 25 18:43 server
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 18:47 src
+total 32
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 17:54 include
+-rw-r--r-- 1 afonso afonso  2471 Apr 25 17:54 Makefile
+-rwxr-xr-x 1 afonso afonso 16432 Apr 25 18:43 server
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 18:47 src
+total 32
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 17:54 include
+-rw-r--r-- 1 afonso afonso  2471 Apr 25 17:54 Makefile
+-rwxr-xr-x 1 afonso afonso 16432 Apr 25 18:43 server
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 18:47 src
+total 32
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 17:54 include
+-rw-r--r-- 1 afonso afonso  2471 Apr 25 17:54 Makefile
+-rwxr-xr-x 1 afonso afonso 16432 Apr 25 18:43 server
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 18:47 src
+total 32
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 17:54 include
+-rw-r--r-- 1 afonso afonso  2471 Apr 25 17:54 Makefile
+-rwxr-xr-x 1 afonso afonso 16432 Apr 25 18:43 server
+drwxr-xr-x 3 afonso afonso  4096 Apr 25 18:47 src

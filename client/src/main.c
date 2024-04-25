@@ -36,8 +36,8 @@ int main() {
     unlink(client_fifo);
     exit(EXIT_FAILURE);
   }
-
-  if (read(client_fd, buffer, sizeof(buffer)) > 0) {
+    int s ;
+  if ( s = (read(client_fd, buffer, sizeof(buffer)) ) > 0) {
     printf("ID of the task: %s\n", buffer);
   }
 
