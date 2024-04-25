@@ -27,7 +27,7 @@ int main() {
   }
 
   sprintf(buffer, "%s %s", client_fifo, "execute");
-  size_t k = write(server_fd, buffer, strlen(buffer) + 1);
+  ssize_t k = write(server_fd, buffer, strlen(buffer) + 1);
   close(server_fd);
 
   client_fd = open(client_fifo, O_RDONLY);
