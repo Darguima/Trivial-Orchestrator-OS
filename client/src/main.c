@@ -27,7 +27,7 @@ int main() {
   }
 
   sprintf(buffer, "%s %s", client_fifo, "execute");
- (void) write(server_fd, buffer, strlen(buffer) + 1);
+  size_t k = write(server_fd, buffer, strlen(buffer) + 1);
   close(server_fd);
 
   client_fd = open(client_fifo, O_RDONLY);
@@ -37,8 +37,8 @@ int main() {
     exit(EXIT_FAILURE);
   }
    
-  if ( (int)read(client_fd, buffer, sizeof(buffer)) > 0) {
-    printf("ID of the task: %s\n", buffer);
+  if ( (int )read(client_fd, buffer, sizeof(buffer)) > 0) {
+    printf("ID of the task: %s\n and unused variable to avoid this stupid warnings %d", buffer,(int)k);
   }
 
   close(client_fd);
