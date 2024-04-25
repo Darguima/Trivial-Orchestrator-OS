@@ -12,6 +12,17 @@
 #define SERVER_LOG "../tmp/server_log.txt"
 #define MAX_TASKS 100
 
+// se tas aqui de paraquedas, vou explicar oq foi feito.
+/*
+basicamente o servidor recebe qualquer coisa do client (apesar de ser executado sempre o mesmo comando no execlp),
+adiciona a tarefa a um array com o seu estado envia para o cliente o numero da tarefa  e executa a tarefa, guardando o
+output na pasta tmp no ficheiro server_log.txt. Não é o melhor exemplo de um servidor, mas é um exemplo de um servidor
+que executa tarefas e guarda o output num ficheiro. Falta implementar o parser do Fábio e já da para executar coisas
+mais especificas.
+
+
+*/
+
 typedef enum { PENDING, EXECUTING, COMPLETED } EstadoTarefa;
 
 typedef struct {
@@ -55,11 +66,10 @@ int main() {
   int server_fd, client_fd;
   char buffer[1024], client_fifo[256], response[256];
 
-    if (mkfifo(SERVER_FIFO, 0666) == -1) {
-        perror("Error creating server FIFO");
-        exit(EXIT_FAILURE);
-    }
-
+  if (mkfifo(SERVER_FIFO, 0666) == -1) {
+    perror("Error creating server FIFO");
+    exit(EXIT_FAILURE);
+  }
 
   server_fd = open(SERVER_FIFO, O_RDONLY);
   if (server_fd == -1) {
