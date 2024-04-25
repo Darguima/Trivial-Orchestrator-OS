@@ -36,9 +36,9 @@ int main() {
     unlink(client_fifo);
     exit(EXIT_FAILURE);
   }
-   
-  if ( (int )read(client_fd, buffer, sizeof(buffer)) > 0) {
-    printf("ID of the task: %s\n and unused variable to avoid this stupid warnings %d", buffer,(int)k);
+
+  if ((int)read(client_fd, buffer, sizeof(buffer)) > 0) {
+    printf("ID of the task: %s\n and unused variable to avoid this stupid warnings %d", buffer, (int)k);
   }
 
   close(client_fd);

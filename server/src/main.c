@@ -86,9 +86,9 @@ int main() {
       tarefas[task_count].estado = PENDING;
       sprintf(response, "%d", task_count);
       client_fd = open(client_fifo, O_WRONLY);
-     ssize_t n =  write(client_fd, response, strlen(response) + 1);
+      ssize_t n = write(client_fd, response, strlen(response) + 1);
       close(client_fd);
-      n= n+1;
+      n = n + 1;
 
       execute_task(task_count);
       task_count++;
