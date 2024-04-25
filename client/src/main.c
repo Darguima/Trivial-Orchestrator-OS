@@ -27,7 +27,7 @@ int main() {
   }
 
   sprintf(buffer, "%s %s", client_fifo, "execute");
-  write(server_fd, buffer, strlen(buffer) + 1);
+  int k = write(server_fd, buffer, strlen(buffer) + 1);
   close(server_fd);
 
   client_fd = open(client_fifo, O_RDONLY);
@@ -36,8 +36,8 @@ int main() {
     unlink(client_fifo);
     exit(EXIT_FAILURE);
   }
-    int s ;
-  if ( s = (read(client_fd, buffer, sizeof(buffer)) ) > 0) {
+   
+  if ( read(client_fd, buffer, sizeof(buffer)) > 0) {
     printf("ID of the task: %s\n", buffer);
   }
 
