@@ -1,3 +1,6 @@
+#ifndef ORCHESTRATOR_H
+#define ORCHESTRATOR_H
+
 typedef struct process {
   int id;
   char* command;
@@ -16,3 +19,5 @@ Orchestrator create_orchestrator(SchedulePolicy schedule_policy);
 void enqueue_process(Orchestrator orch, char* command, int estimated_runtime);
 
 Process dequeue_process(Orchestrator orch);
+
+#endif
