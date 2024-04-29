@@ -1,4 +1,4 @@
-#include "fcfs_policy.h"
+#include "scheduler/fcfs_policy.h"
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -28,8 +28,7 @@ FCFSQueue create_fcfs_queue() {
   return queue;
 }
 
-int enqueue_fcfs(void* fcfs_queue_, Element element) {
-  FCFSQueue fcfs_queue = (FCFSQueue)fcfs_queue_;
+int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
   int queue_len = get_fcfs_queue_length(fcfs_queue);
 
   if (queue_len == fcfs_queue->capacity) {
@@ -65,8 +64,7 @@ int enqueue_fcfs(void* fcfs_queue_, Element element) {
   return element_id;
 }
 
-Element dequeue_fcfs(void* fcfs_queue_) {
-  FCFSQueue fcfs_queue = (FCFSQueue)fcfs_queue_;
+Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
     // printf("[LOG] - FCFS queue is empty;\n");
     log_fcfs_queue_modification(fcfs_queue, "EMPTY DEQUEUE");
