@@ -11,7 +11,6 @@ typedef struct fcfs_queue {
 }* FCFSQueue;
 
 int get_fcfs_queue_length(FCFSQueue fcfs_queue);
-void log_fcfs_queue_modification(FCFSQueue fcfs_queue, char* action);
 
 FCFSQueue create_fcfs_queue() {
   FCFSQueue queue = malloc(sizeof(struct fcfs_queue));
@@ -48,8 +47,7 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
     fcfs_queue->arr = new_queue;
     fcfs_queue->capacity *= 2;
 
-    // printf("[LOG] - Resized FCFS queue to %d elements;\n", fcfs_queue->capacity);
-    log_fcfs_queue_modification(fcfs_queue, "RESIZED");
+    printf("[LOG] - Resized FCFS queue to %d elements;\n", fcfs_queue->capacity);
   }
 
   int element_id = fcfs_queue->next_id;
@@ -58,16 +56,14 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
   fcfs_queue->ending_index = (fcfs_queue->ending_index + 1) % fcfs_queue->capacity;
   fcfs_queue->arr[fcfs_queue->ending_index] = element;
 
-  // printf("[LOG] - Enqueued element %d to FCFS queue on position %d;\n", element_id, fcfs_queue->ending_index);
-  log_fcfs_queue_modification(fcfs_queue, "ENQUEUED");
+  printf("[LOG] - Enqueued element %d to FCFS queue on position %d;\n", element_id, fcfs_queue->ending_index);
 
   return element_id;
 }
 
 Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
-    // printf("[LOG] - FCFS queue is empty;\n");
-    log_fcfs_queue_modification(fcfs_queue, "EMPTY DEQUEUE");
+    printf("[LOG] - FCFS queue is empty;\n");
     return NULL;
   }
 
@@ -81,8 +77,7 @@ Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   }
 
   int queue_len = get_fcfs_queue_length(fcfs_queue);
-  // printf("[LOG] - Dequeued element from FCFS queue - remain %d elements;\n", queue_len);
-  log_fcfs_queue_modification(fcfs_queue, "DEQUEUE");
+  printf("[LOG] - Dequeued element from FCFS queue - remain %d elements;\n", queue_len);
 
   return element;
 }
@@ -94,21 +89,4 @@ int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
   return fcfs_queue->starting_index < fcfs_queue->ending_index
              ? fcfs_queue->ending_index - fcfs_queue->starting_index + 1
              : fcfs_queue->capacity - fcfs_queue->starting_index + fcfs_queue->ending_index + 1;
-}
-
-void log_fcfs_queue_modification(FCFSQueue fcfs_queue, char* action) {
-  printf("%10s: [", action);
-
-  for (int i = 0; i < fcfs_queue->capacity; i++) {
-    if ((fcfs_queue->starting_index <= fcfs_queue->ending_index && fcfs_queue->starting_index <= i &&
-         i <= fcfs_queue->ending_index) ||
-        (fcfs_queue->starting_index > fcfs_queue->ending_index &&
-         (fcfs_queue->starting_index <= i || i <= fcfs_queue->ending_index))) {
-      printf(" x ");
-    } else {
-      printf(" _ ");
-    }
-  }
-
-  printf("]\n");
 }
