@@ -26,6 +26,8 @@ int main() {
 
   free(p);
 
+  destroy_scheduler(scheduler);
+
   return 0;
 }
 ```
@@ -45,6 +47,9 @@ typedef struct policy_queue* PolicyQueue;
 
 Queue create_policy_queue();
 
+// free all the memory allocated by the queue
+void destroy_fcfs(FCFSQueue fcfs_queue);
+
 int enqueue_policy(Queue policy_queue, Element element);
 
 Element dequeue_policy(Queue policy_queue);
@@ -54,8 +59,11 @@ Then you just need add the policy to the `scheduler.c` file:
 
 ```c
 // don't forget to add YOUR_POLICY to the SchedulePolicy enum
+
 if (scheduler->policy == YOUR_POLICY) {
   scheduler->queue = (Queue)create_policy_queue();
+  scheduler->destroy_fun = (DestroyFunction)destroy_policy;
+    
   scheduler->enqueue_fun = (EnqueueFunction)enqueue_policy;
   scheduler->dequeue_fun = (DequeueFunction)dequeue_policy;
 }

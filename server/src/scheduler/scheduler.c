@@ -7,6 +7,7 @@
 typedef struct queue* Queue;
 typedef int (*EnqueueFunction)(Queue, Process);
 typedef Process (*DequeueFunction)(Queue);
+typedef void (*DestroyFunction)();
 
 typedef struct scheduler {
   SchedulePolicy policy;
@@ -15,6 +16,8 @@ typedef struct scheduler {
 
   EnqueueFunction enqueue_fun;
   DequeueFunction dequeue_fun;
+
+  DestroyFunction destroy_fun;
 
 }* Scheduler;
 
@@ -26,6 +29,8 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy) {
 
   if (scheduler->policy == FCFS) {
     scheduler->queue = (Queue)create_fcfs_queue();
+    scheduler->destroy_fun = (DestroyFunction)destroy_fcfs;
+
     scheduler->enqueue_fun = (EnqueueFunction)enqueue_fcfs;
     scheduler->dequeue_fun = (DequeueFunction)dequeue_fcfs;
   }
@@ -33,6 +38,19 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy) {
   printf("[LOG] - Scheduler created with policy: %s;\n", schedule_policy == FCFS ? "FCFS" : "None");
 
   return scheduler;
+}
+
+void destroy_scheduler(Scheduler scheduler) {
+  printf("[LOG] - Destroying Scheduler;\n");
+  Process process;
+  while ((process = scheduler->dequeue_fun(scheduler->queue)) != NULL) {
+    free(process->command);
+    free(process);
+  }
+
+  scheduler->destroy_fun(scheduler->queue);
+  free(scheduler);
+  printf("[LOG] - Scheduler Destroyed;\n");
 }
 
 int enqueue_process(Scheduler scheduler, char* command, int estimated_runtime) {

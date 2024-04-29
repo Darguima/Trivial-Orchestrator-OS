@@ -22,5 +22,7 @@ int main() {
     free(process);
   }
 
+  destroy_scheduler(scheduler);
+
   return 0;
 }

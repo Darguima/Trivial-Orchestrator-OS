@@ -7,6 +7,8 @@ typedef struct fcfs_queue* FCFSQueue;
 
 FCFSQueue create_fcfs_queue();
 
+void destroy_fcfs(FCFSQueue fcfs_queue);
+
 int enqueue_fcfs(FCFSQueue fcfs_queue, Element element);
 
 Element dequeue_fcfs(FCFSQueue fcfs_queue);

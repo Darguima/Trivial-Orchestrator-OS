@@ -27,6 +27,13 @@ FCFSQueue create_fcfs_queue() {
   return queue;
 }
 
+void destroy_fcfs(FCFSQueue fcfs_queue) {
+  free(fcfs_queue->arr);
+  free(fcfs_queue);
+
+  printf("[LOG] - Destroyed FCFS queue;\n");
+}
+
 int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
   int queue_len = get_fcfs_queue_length(fcfs_queue);
 
@@ -86,7 +93,7 @@ int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1)
     return 0;
 
-  return fcfs_queue->starting_index < fcfs_queue->ending_index
+  return fcfs_queue->starting_index <= fcfs_queue->ending_index
              ? fcfs_queue->ending_index - fcfs_queue->starting_index + 1
              : fcfs_queue->capacity - fcfs_queue->starting_index + fcfs_queue->ending_index + 1;
 }
