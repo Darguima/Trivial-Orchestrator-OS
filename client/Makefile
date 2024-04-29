@@ -34,14 +34,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 clean:
 	@find . -type f -name '*.o' -delete && echo "[Cleaning] Object Files"
-	@rm -f ${EXECUTABLE} && rm -f ${TEST_EXECUTABLE} && echo "[Cleaning] ${EXECUTABLE} and ${TEST_EXECUTABLE}"
-	@rm -rf Resultados/command*_output.txt Resultados/*_errors.csv Resultados/tests_results.txt; echo "[Cleaning] Resultados Folder"
-
-format:
-# Check if clang is installed
-	@command -v clang-format &> /dev/null || echo "[Warning] Please install `clang`. Read documentation."
-# Run clang-format against the code files
-	@find . -name '*.[ch]' -exec clang-format -i {} -i -style=file \; && echo "[Formating]"
+	@rm -f ${EXECUTABLE} && echo "[Cleaning] ${EXECUTABLE}"
 
 check-memory:
 # Check if valgrind is installed
