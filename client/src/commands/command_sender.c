@@ -38,15 +38,13 @@ int askforcommand() {
 }
 
 int send_command(char* command) {
-    // open the server FIFO
-    int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600);
+    int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600); // open the server FIFO
     if (s_fd == -1) {
         perror("open");
         return 1;
     }
 
-    // write the command to the server FIFO
-    if (write(s_fd, command, strlen(command)) == -1) {
+    if (write(s_fd, command, strlen(command)) == -1) { // write the command to the server FIFO
         perror("write");
         return 1;
     }

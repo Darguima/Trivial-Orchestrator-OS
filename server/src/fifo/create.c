@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "../../datapipe/globals.h"
 #include "fifo/create.h"
 
 int create_fifo() {

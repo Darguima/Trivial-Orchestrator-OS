@@ -26,6 +26,7 @@ int main() {
         perror("write");
         return 1;
       }
+      // TODO: add command interpreter here and execute the command
   }
 
   // on server close delete the FIFO
