@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
+#include "time.h"
 
 typedef struct queue* Queue;
 typedef int (*EnqueueFunction)(Queue, Process);
@@ -58,6 +59,7 @@ int enqueue_process(Scheduler scheduler, char* command, int estimated_runtime) {
 
   new_process->command = strdup(command);
   new_process->estimated_runtime = estimated_runtime;
+  gettimeofday(&new_process->start_time, NULL);
 
   new_process->id = scheduler->enqueue_fun(scheduler->queue, new_process);
 
@@ -67,3 +69,5 @@ int enqueue_process(Scheduler scheduler, char* command, int estimated_runtime) {
 Process dequeue_process(Scheduler scheduler) {
   return scheduler->dequeue_fun(scheduler->queue);
 }
+
+
