@@ -8,7 +8,8 @@ datapipe/*
 !datapipe/.gitkeep
 !datapipe/*.c
 !datapipe/*.h
-relatorio/*.pdf
+#relatorio/*.pdf
+#relatorio/relatorio.pdf
 
 valgrind-out.txt
 .vscode

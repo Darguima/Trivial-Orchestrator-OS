@@ -25,28 +25,28 @@ void print_received_command(char* buffer, ssize_t read_bytes) {
 }
 
 int main() {
-  create_fifo();
-  // read from the server FIFO
-  int s_fd = open(S_FIFO_PATH, O_RDONLY, 0600);
-  if (s_fd == -1) {
-      perror("open");
-      return 1;
-  }
+    create_fifo();
+    // read from the server FIFO
+    int s_fd = open(S_FIFO_PATH, O_RDONLY, 0600);
+    if (s_fd == -1) {
+        perror("open");
+        return 1;
+    }
 
-  char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
-  ssize_t read_bytes;
+    char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
+    ssize_t read_bytes;
 
-  while ((read_bytes = read(s_fd, buffer, MAX_BUF_SIZE)) > 0) {
-      print_received_command(buffer, read_bytes);
-      // command interpreter and execute the command
-      char** command_args = command_interpreter(buffer);
-      execute_command(command_args[0], command_args+1);
-  }
+    while ((read_bytes = read(s_fd, buffer, MAX_BUF_SIZE)) > 0) {
+        //print_received_command(buffer, read_bytes);
+        // command interpreter and execute the command
+        char** command_args = command_interpreter(buffer);
+        execute_command(command_args[0], command_args+1);
+    }
 
-  // on server close delete the FIFO
-  delete_fifo();
+    // on server close delete the FIFO
+    delete_fifo();
 
-  close(s_fd);
-  free(buffer);
-  return 0;
+    close(s_fd);
+    free(buffer);
+    return 0;
 }
