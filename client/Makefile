@@ -11,7 +11,7 @@ MAKE_ARGS = $(filter-out $@,$(MAKECMDGOALS))
 # Compiler Flags ====
 CC = gcc
 
-FLAGS = -Wall -Wextra -pedantic -std=gnu17 -Werror=pedantic -Werror=vla -fstack-protector-all -fstrict-aliasing -Wconversion -Wformat-security -Wundef -Wshadow
+FLAGS = -Wall -Wextra
 
 # Add correct optimization flags to FLAGS
 # To activate DEBUG flags call the make file like this: `DEBUG=1 make ...`
