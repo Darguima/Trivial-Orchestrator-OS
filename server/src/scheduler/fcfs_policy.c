@@ -70,7 +70,7 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
 
 Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
-    printf("[LOG] - FCFS queue is empty;\n");
+    //printf("[LOG] - FCFS queue is empty;\n");
     return NULL;
   }
 
