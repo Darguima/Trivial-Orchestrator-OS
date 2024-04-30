@@ -7,9 +7,14 @@
 #include "../../datapipe/globals.h"
 #include "commands/command_sender.h"
 
+#define TERMINAL_YELLOW "\033[0;33m"
+#define TERMINAL_RESET "\033[0m"
+
 void asktext() {
-    if (write(STDOUT_FILENO, "Enter a command: \n >> ", 22) == -1) { // write a message that doesnt get sent to the server
+    const char* prompt = TERMINAL_YELLOW "Enter a command:\n >> " TERMINAL_RESET;
+    if (write(STDOUT_FILENO, prompt, strlen(prompt)) == -1) {
         perror("write");
+        exit(1);
     }
 }
 

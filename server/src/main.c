@@ -8,6 +8,21 @@
 
 #include "../../datapipe/globals.h"
 #include "fifo/create.h"
+#include "commands/command_interpreter.h"
+#include "commands/command_runner.h"
+
+void print_received_command(char* buffer, ssize_t read_bytes) {
+    // write on server terminal (just for testing)
+    char* output = (char*)malloc(sizeof(char) * (read_bytes + 11));
+    if (output == NULL) {
+        perror("malloc");
+        return;
+    }
+    strcpy(output, "Received: ");
+    strcat(output, buffer);
+    printf("%s", output);
+    free(output);
+}
 
 int main() {
   create_fifo();
@@ -22,11 +37,10 @@ int main() {
   ssize_t read_bytes;
 
   while ((read_bytes = read(s_fd, buffer, MAX_BUF_SIZE)) > 0) {
-      if (write(STDOUT_FILENO, buffer, read_bytes) == -1) {
-        perror("write");
-        return 1;
-      }
-      // TODO: add command interpreter here and execute the command
+      print_received_command(buffer, read_bytes);
+      // command interpreter and execute the command
+      char** command_args = command_interpreter(buffer);
+      execute_command(command_args[0], command_args);
   }
 
   // on server close delete the FIFO
