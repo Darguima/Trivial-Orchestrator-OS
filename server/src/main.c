@@ -40,7 +40,7 @@ int main() {
       print_received_command(buffer, read_bytes);
       // command interpreter and execute the command
       char** command_args = command_interpreter(buffer);
-      execute_command(command_args[0], command_args);
+      execute_command(command_args[0], command_args+1);
   }
 
   // on server close delete the FIFO
