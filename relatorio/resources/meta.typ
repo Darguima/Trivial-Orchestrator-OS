@@ -1,6 +1,11 @@
 #let globals = (
     font: "New Computer Modern",
+    fontSize: 12pt,
     logo: "../images/uminho.png",
+    lang: "pt",
+    region: "PT",
+    titleNumbering: "1.",
+    equationsNumbering: "(1)",
 )
 
 #let titulo = "Trabalho Prático - Relatório"

@@ -1,13 +1,25 @@
-#import "resources/meta.typ" as meta
-#import "resources/capa.typ" as capa
+#import "resources/report.typ" as report
 
-#capa.cover()
+#show: report.styling.with(
+    hasFooter: false
+)
 
-= 1. Titulo
+= Titulo
 Texto
 
-== 1.1 Tabela
+== Tabela
 #figure(
     caption: "Tabela 1.",
     table(columns: 2)[column1][column2][row1][row2]
 ) <tabela1>
+
+#pagebreak()
+
+= Titulo 2
+Texto
+
+== Tabela 2
+#figure(
+    caption: "Tabela 2.",
+    table(columns: 2)[column1][column2][row1][row2]
+) <tabela2>
