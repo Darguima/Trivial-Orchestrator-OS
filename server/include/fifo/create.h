@@ -5,5 +5,6 @@
 #define S_FIFO_PATH "datapipe/s_fifo"
 
 int create_fifo();
+int delete_fifo();
 
 #endif

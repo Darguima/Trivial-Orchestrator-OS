@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
 
 #define MAX_BUF_SIZE 1024
 
@@ -28,7 +29,10 @@ int main() {
       }
   }
 
-  close(fd);
+  // on server close delete the FIFO
+  delete_fifo();
+
+  close(s_fd);
   free(buffer);
   return 0;
 }
