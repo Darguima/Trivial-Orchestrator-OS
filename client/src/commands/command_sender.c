@@ -3,33 +3,29 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#include "../../datapipe/globals.h"
 #include "commands/command_sender.h"
 
-#define BUF_SIZE 1024
-#define MAX_COMMAND_LENGTH 100
+void asktext() {
+    if (write(STDOUT_FILENO, "Enter a command: \n >> ", 22) == -1) { // write a message that doesnt get sent to the server
+        perror("write");
+    }
+}
 
 int askforcommand() {
-    // open the server FIFO
-    int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600);
+    int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600); // open the server FIFO
     if (s_fd == -1) {
         perror("open");
         return 1;
     }
 
-    char* buffer = malloc(sizeof(char) * BUF_SIZE);
+    char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
     ssize_t read_bytes;
 
-    // write a "Enter a command: \n >> " message that doesnt get sent to the server
-    if (write(STDOUT_FILENO, "Enter a command: \n >> ", 22) == -1) {
-        perror("write");
-        return 1;
-    }
-
-    while ((read_bytes = read(STDIN_FILENO, buffer, BUF_SIZE)) > 0) {
-        if (write(STDOUT_FILENO, "Enter a command: \n >> ", 22) == -1) {
-            perror("write");
-            return 1;
-        }
+    asktext();
+    while ((read_bytes = read(STDIN_FILENO, buffer, MAX_BUF_SIZE)) > 0) {
+        asktext();
         if (write(s_fd, buffer, read_bytes) == -1) {
             perror("write");
             return 1;

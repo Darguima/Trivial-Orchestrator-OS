@@ -6,8 +6,7 @@
 #include <sys/types.h>
 #include <string.h>
 
-#define MAX_BUF_SIZE 1024
-
+#include "../../datapipe/globals.h"
 #include "fifo/create.h"
 
 int main() {

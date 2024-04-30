@@ -8,7 +8,7 @@ build:
 
 build_client:
 	@echo "Building client..."
-	$(MAKE) -C client/
+	$(MAKE) -C client/ -Idatapipe
 
 build_server:
 	@echo "Building server..."

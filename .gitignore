@@ -6,6 +6,8 @@ client/client
 #!bin/Makefile
 datapipe/*
 !datapipe/.gitkeep
+!datapipe/*.c
+!datapipe/*.h
 
 valgrind-out.txt
 .vscode
