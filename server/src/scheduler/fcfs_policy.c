@@ -97,3 +97,6 @@ int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
              ? fcfs_queue->ending_index - fcfs_queue->starting_index + 1
              : fcfs_queue->capacity - fcfs_queue->starting_index + fcfs_queue->ending_index + 1;
 }
+
+
+
