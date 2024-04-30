@@ -36,10 +36,10 @@ $ git clone git@github.com:Darguima/Trivial-Orchestrator-OS.git
 
 ```bash
 # Debian / Ubuntu / Mint
-$ sudo apt-get install clang-format valgrind
+$ sudo apt-get install valgrind
 
 # Arch
-$ sudo pacman -S clang valgrind
+$ sudo pacman -S valgrind
 ```
 
 #### Running the project 🏃‍♂️
@@ -86,11 +86,6 @@ $ make check-memory
 ##### Cleaning object files and executable
 ```bash
 $ make clean
-```
-
-##### Formatting the code
-```bash
-$ make format
 ```
 
 ## Developed by 🧑‍💻:
