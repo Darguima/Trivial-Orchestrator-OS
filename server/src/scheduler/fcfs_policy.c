@@ -70,7 +70,7 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
 
 Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
-    printf("[LOG] - FCFS queue is empty;\n");
+    //printf("[LOG] - FCFS queue is empty;\n");
     return NULL;
   }
 
@@ -97,3 +97,6 @@ int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
              ? fcfs_queue->ending_index - fcfs_queue->starting_index + 1
              : fcfs_queue->capacity - fcfs_queue->starting_index + fcfs_queue->ending_index + 1;
 }
+
+
+
