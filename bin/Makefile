@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -Wall -Wextra
+FLAGS = -Wall
 CFLAGS = -O2 -g $(FLAGS)
 
 SOURCES = $(wildcard *.c)

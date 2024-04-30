@@ -1,6 +1,5 @@
-#include "scheduler/scheduler.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,8 +9,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define SERVER_FIFO "../tmp/fifo_server"
-#define MAX_SIMULTANEOUS 3  // Maximum number of simultaneous tasks
+#include "../../datapipe/globals.h"
+#include "fifo/create.h"
+#include "scheduler/scheduler.h"
 
 int active_tasks = 0; // Active tasks counter
 Process processes[MAX_SIMULTANEOUS]; // Array to store the processes in execution
@@ -27,7 +27,7 @@ void execute_process(Process process) {
     }
     if (pid == 0) { // Child process
         char log_file[256];
-        sprintf(log_file, "../tmp/log");
+        sprintf(log_file, LOG_PATH);
         fd = open(log_file, O_WRONLY | O_CREAT | O_APPEND, 0666);
         if (fd == -1) {
             perror("Failed to open log file");
@@ -37,15 +37,15 @@ void execute_process(Process process) {
         dup2(fd, STDERR_FILENO);
         close(fd);
 
-        execlp("./arroz", "arroz", NULL);
+        //execlp("./arroz", "arroz", NULL);
         perror("Failed to execute './arroz'");
         exit(EXIT_FAILURE);
     } else {
         process->process_id = pid;
         if (active_tasks < MAX_SIMULTANEOUS) {
             processes[active_tasks++] = process;
+        }
     }
-}
 }
 
 void remove_processes(int index) {
@@ -62,13 +62,11 @@ void handle_finished_task() {
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
         for (int i = 0; i < active_tasks; i++) {
             if (processes[i]->process_id == pid) {
-                
-               //calculate duration of the process in seconds
+                //calculate duration of the process in seconds
                 struct timeval end_time;
-                  gettimeofday(&end_time, NULL);
+                gettimeofday(&end_time, NULL);
                 double duration = (double)(end_time.tv_sec - processes[i]->start_time.tv_sec) + 
-                                  (double)(end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
-
+                                    (double)(end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
                 printf("Process %d with PID %d has finished. Duration: %.6f seconds.\n", processes[i]->id , pid, duration); // just testing the time of the process
                 remove_processes(i);
                 break;
@@ -77,16 +75,14 @@ void handle_finished_task() {
     }
 }
 
-
 int main() {
     Scheduler scheduler = create_scheduler(FCFS);
-    int server_fd, client_fd;
-    char buffer[1024], client_fifo[256], response[256];
+    char buffer[MAX_BUF_SIZE], client_fifo[MAX_FIFO_NAME], response[MAX_BUF_SIZE];
 
     // Create server FIFO
-   mkfifo(SERVER_FIFO, 0666);
+    create_fifo(S_FIFO_PATH);
 
-    server_fd = open(SERVER_FIFO, O_RDONLY);
+    int server_fd = open(S_FIFO_PATH, O_RDONLY);
     if (server_fd == -1) {
         perror("Error opening server FIFO");
         exit(EXIT_FAILURE);
@@ -101,8 +97,10 @@ int main() {
             int id = enqueue_process(scheduler, "ls -l", 10);
 
             sprintf(response, "%d", id);
-            client_fd = open(client_fifo, O_WRONLY);
-            write(client_fd, response, strlen(response) + 1);
+            int client_fd = open(client_fifo, O_WRONLY);
+            if (write(client_fd, response, strlen(response) + 1) == -1) {
+                perror("Failed to write to client FIFO");
+            }
             close(client_fd);
         }
 
@@ -119,8 +117,8 @@ int main() {
     destroy_scheduler(scheduler);
     close(server_fd);
 
-  return 0;
- }
+    return 0;
+}
 /*
 #include <stdio.h>
 #include <stdlib.h>
