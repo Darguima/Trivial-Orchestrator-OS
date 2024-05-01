@@ -18,7 +18,35 @@ void asktext() {
     }
 }
 
-int askforcommand() {
+int askforcommand(int client_pid) {
+    int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600); // open the server FIFO
+    if (s_fd == -1) {
+        perror("open");
+        return 1;
+    }
+
+    char* command = malloc(sizeof(char) * MAX_BUF_SIZE);
+
+    asktext();
+    while (read(STDIN_FILENO, command, MAX_BUF_SIZE) > 0) {
+        asktext();
+        char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
+        // buffer = <client_pid> <command>
+        sprintf(buffer, "%d %s", client_pid, command);
+        if (write(s_fd, buffer, strlen(buffer)) == -1) {
+            perror("write");
+            return 1;
+        }
+        memset(command, 0, MAX_BUF_SIZE);
+        free(buffer);
+    }
+
+    close(s_fd);
+    free(command);
+    return 0;
+}
+
+int send_command(int client_pid, char* command) {
     int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600); // open the server FIFO
     if (s_fd == -1) {
         perror("open");
@@ -26,48 +54,28 @@ int askforcommand() {
     }
 
     char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
-    ssize_t read_bytes;
-
-    asktext();
-    while ((read_bytes = read(STDIN_FILENO, buffer, MAX_BUF_SIZE)) > 0) {
-        asktext();
-        if (write(s_fd, buffer, read_bytes) == -1) {
-            perror("write");
-            return 1;
-        }
-    }
-
-    close(s_fd);
-    free(buffer);
-    return 0;
-}
-
-int send_command(char* command) {
-    int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600); // open the server FIFO
-    if (s_fd == -1) {
-        perror("open");
-        return 1;
-    }
-
-    if (write(s_fd, command, strlen(command)) == -1) { // write the command to the server FIFO
+    // buffer = <client_pid> <command>
+    sprintf(buffer, "%d %s", client_pid, command);
+    if (write(s_fd, buffer, strlen(buffer)) == -1) { // write the command to the server FIFO
         perror("write");
         return 1;
     }
-
+    memset(buffer, 0, MAX_BUF_SIZE);
+    free(buffer);
     close(s_fd);
     return 0;
 }
 
-void send_create_task_fifo(char* predicted_c_fifo) {
+void send_create_task_fifo(int client_pid) {
     char* create_command = (char*)malloc(MAX_COMMAND_LENGTH * sizeof(char));
-    sprintf(create_command, "create_taskuser %s", predicted_c_fifo);
-    send_command(create_command);
+    sprintf(create_command, "create_taskuser %s_%d", C_FIFO_PATH, client_pid);
+    send_command(client_pid, create_command);
     free(create_command);
 }
 
-void send_delete_task_fifo(char* predicted_c_fifo) {
+void send_delete_task_fifo(int client_pid) {
     char* delete_command = (char*)malloc(MAX_COMMAND_LENGTH * sizeof(char));
-    sprintf(delete_command, "delete_taskuser %s", predicted_c_fifo);
-    send_command(delete_command);
+    sprintf(delete_command, "delete_taskuser %s_%d", C_FIFO_PATH, client_pid);
+    send_command(client_pid, delete_command);
     free(delete_command);
 }
