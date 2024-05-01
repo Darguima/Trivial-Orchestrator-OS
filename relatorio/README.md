@@ -24,3 +24,9 @@ typst compile relatorio/relatorio.typ
 ```bash
 typst watch relatorio.typ
 ```
+
+or (if you are in the root of the project):
+
+```bash
+typst watch relatorio/relatorio.typ
+```

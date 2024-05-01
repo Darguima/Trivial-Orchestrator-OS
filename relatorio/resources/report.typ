@@ -82,6 +82,27 @@
     ]
 ]
 
+#let index(
+    title: "Índice",
+    header: header(),
+    hasHeader: false,
+    footer: footer(),
+    hasFooter: false,
+) = [
+    #set page(
+        header: (if (hasHeader) {
+            header
+        }),
+        footer: (if (hasFooter) {
+            footer
+        }),
+        margin: (top: 3.5cm)
+    )
+    #outline(
+        title: title
+    )
+]
+
 #let styling(
     header: header(),
     hasHeader: true,
