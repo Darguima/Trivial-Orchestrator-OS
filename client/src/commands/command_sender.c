@@ -10,7 +10,7 @@
 #define TERMINAL_YELLOW "\033[0;33m"
 #define TERMINAL_RESET "\033[0m"
 
-void asktext() {
+void ask_text() {
     const char* prompt = TERMINAL_YELLOW "Enter a command:\n >> " TERMINAL_RESET;
     if (write(STDOUT_FILENO, prompt, strlen(prompt)) == -1) {
         perror("write");
@@ -18,7 +18,7 @@ void asktext() {
     }
 }
 
-int askforcommand(int client_pid) {
+int ask_for_command(int client_pid) {
     int s_fd = open(S_FIFO_PATH, O_WRONLY, 0600); // open the server FIFO
     if (s_fd == -1) {
         perror("open");
@@ -27,9 +27,9 @@ int askforcommand(int client_pid) {
 
     char* command = malloc(sizeof(char) * MAX_BUF_SIZE);
 
-    asktext();
+    ask_text();
     while (read(STDIN_FILENO, command, MAX_BUF_SIZE) > 0) {
-        asktext();
+        ask_text();
         char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
         // buffer = <client_pid> <command>
         sprintf(buffer, "%d %s", client_pid, command);

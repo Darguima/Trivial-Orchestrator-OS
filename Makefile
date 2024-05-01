@@ -3,15 +3,15 @@ all: build
 build:
 	@echo "Building..."
 	$(MAKE) build_client
-	$(MAKE) build_server
+	$(MAKE) build_orchestrator
 	$(MAKE) compile_commands
 
 build_client:
 	@echo "Building client..."
-	$(MAKE) -C client/ -Idatapipe
+	$(MAKE) -C client/
 
-build_server:
-	@echo "Building server..."
+build_orchestrator:
+	@echo "Building orchestrator..."
 	$(MAKE) -C server/
 
 compile_commands:

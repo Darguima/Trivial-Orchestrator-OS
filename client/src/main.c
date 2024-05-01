@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
   send_create_task_fifo(client_pid);
 
   if (argc <= 1) {
-    askforcommand(client_pid);
+    ask_for_command(client_pid);
   } else {
     // Command is argv except the first element
     char* command = (char*)malloc(MAX_COMMAND_LENGTH * sizeof(char));
