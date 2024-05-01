@@ -12,10 +12,12 @@
 #include "../../datapipe/globals.h"
 #include "fifo/create.h"
 #include "scheduler/scheduler.h"
+#include "commands/command_interpreter.h"
+#include "commands/command_runner.h"
 
 int active_tasks = 0; // Active tasks counter
 Process processes[MAX_SIMULTANEOUS]; // Array to store the processes in execution
-int process_count = 0; // Number of processes in execution
+int process_count = 0; // Number of processes (fifos) in execution
 
 void execute_process(Process process) {
     printf("Executing process %d\n", process->id);
@@ -55,7 +57,6 @@ void remove_processes(int index) {
     active_tasks--;
 }
 
-
 void handle_finished_task() {
     int status;
     pid_t pid;
@@ -65,9 +66,8 @@ void handle_finished_task() {
                 //calculate duration of the process in seconds
                 struct timeval end_time;
                 gettimeofday(&end_time, NULL);
-                double duration = (double)(end_time.tv_sec - processes[i]->start_time.tv_sec) + 
-                                    (double)(end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
-                printf("Process %d with PID %d has finished. Duration: %.6f seconds.\n", processes[i]->id , pid, duration); // just testing the time of the process
+                double duration = (double)(end_time.tv_sec - processes[i]->start_time.tv_sec) + (double)(end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
+                printf("Debug: Process %d with PID %d has finished. Duration: %.6f seconds.\n", processes[i]->id , pid, duration); // just testing the time of the process
                 remove_processes(i);
                 break;
             }
@@ -75,6 +75,7 @@ void handle_finished_task() {
     }
 }
 
+/*TODO: ADD TO COMMAND RUNNER THIS LOGIC
 int main() {
     Scheduler scheduler = create_scheduler(FCFS);
     char buffer[MAX_BUF_SIZE], client_fifo[MAX_FIFO_NAME], response[MAX_BUF_SIZE];
@@ -119,36 +120,19 @@ int main() {
 
     return 0;
 }
-/*
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <string.h>
-
-#include "../../datapipe/globals.h"
-#include "fifo/create.h"
-#include "commands/command_interpreter.h"
-#include "commands/command_runner.h"
-
-void print_received_command(char* buffer, ssize_t read_bytes) {
-    // write on server terminal (just for testing)
-    char* output = (char*)malloc(sizeof(char) * (read_bytes + 11));
-    if (output == NULL) {
-        perror("malloc");
-        return;
-    }
-    strcpy(output, "Received: ");
-    strcat(output, buffer);
-    printf("%s", output);
-    free(output);
-}
+}*/
 
 int main() {
-    create_fifo();
-    // read from the server FIFO
+    char** fifo_connections = malloc(sizeof(char*) * MAX_SIMULTANEOUS);
+    for (int i = 0; i < MAX_SIMULTANEOUS; i++) {
+        fifo_connections[i] = malloc(sizeof(char) * MAX_FIFO_NAME);
+    }
+    Scheduler scheduler = create_scheduler(FCFS);
+
+    // Create server FIFO
+    create_fifo(S_FIFO_PATH);
+
+    // Open server FIFO for reading
     int s_fd = open(S_FIFO_PATH, O_RDONLY, 0600);
     if (s_fd == -1) {
         perror("open");
@@ -156,19 +140,92 @@ int main() {
     }
 
     char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
-    ssize_t read_bytes;
+    //ssize_t read_bytes;
 
-    while ((read_bytes = read(s_fd, buffer, MAX_BUF_SIZE)) > 0) {
-        //print_received_command(buffer, read_bytes);
-        // command interpreter and execute the command
+    /*while ((read_bytes = read(s_fd, buffer, MAX_BUF_SIZE)) > 0) {
         char** command_args = command_interpreter(buffer);
-        execute_command(command_args[0], command_args+1);
+        char* client_fifo = command_args[1];
+        if (strcmp(command_args[0], "create_taskuser") == 0) {
+            // create_taskuser <client_fifo>
+            if (client_fifo != NULL) {
+                create_fifo(client_fifo); // creates the user FIFO
+                strcpy(fifo_connections[process_count], client_fifo);
+                process_count++;
+            }
+        } else if (strcmp(command_args[0], "delete_taskuser") == 0) {
+            // delete_taskuser <client_fifo>
+            if (client_fifo != NULL) {
+                delete_fifo(client_fifo); // deletes the user FIFO
+            }
+        } else {
+            // Execute the command
+            int id = enqueue_process(scheduler, buffer, 10);
+            char response[MAX_BUF_SIZE];
+            sprintf(response, "%d", id);
+            int client_fd = open(client_fifo, O_WRONLY);
+            if (write(client_fd, response, strlen(response) + 1) == -1) {
+                perror("Failed to write to client FIFO");
+            }
+            close(client_fd);
+        }
+        free(command_args);
+        memset(buffer, 0, MAX_BUF_SIZE); // Reset buffer to null characters (clear it)
+    }*/
+
+    while (1) {
+        handle_finished_task(); // Verify if any task has finished
+
+        if (read(s_fd, buffer, sizeof(buffer)) > 0) {
+            char** command_args = command_interpreter(buffer);
+            char* client_fifo = command_args[1];
+            if (strcmp(command_args[0], "create_taskuser") == 0) {
+                // create_taskuser <client_fifo>
+                if (client_fifo != NULL) {
+                    create_fifo(client_fifo); // creates the user FIFO
+                    strcpy(fifo_connections[process_count], client_fifo);
+                    process_count++;
+                }
+            } else if (strcmp(command_args[0], "delete_taskuser") == 0) {
+                // delete_taskuser <client_fifo>
+                if (client_fifo != NULL) {
+                    delete_fifo(client_fifo); // deletes the user FIFO
+                }
+            } else {
+                // Execute the command
+                int id = enqueue_process(scheduler, buffer, 10);
+                char response[MAX_BUF_SIZE];
+                sprintf(response, "%d", id);
+                int client_fd = open(client_fifo, O_WRONLY);
+                if (write(client_fd, response, strlen(response) + 1) == -1) {
+                    perror("Failed to write to client FIFO");
+                }
+                close(client_fd);
+            }
+            free(command_args);
+            memset(buffer, 0, MAX_BUF_SIZE); // Reset buffer to null characters (clear it)
+        }
+
+        while (active_tasks < MAX_SIMULTANEOUS) {
+            Process process = dequeue_process(scheduler);
+            if (process != NULL) {
+                execute_process(process);
+            } else {
+                break;  // There are no more processes to execute
+            }
+        }
     }
 
-    // on server close delete the FIFO
-    delete_fifo();
-
+    // On server close delete the FIFO
+    delete_fifo(S_FIFO_PATH);
+    for (int i = 0; i < process_count; i++) {
+        delete_fifo(fifo_connections[i]);
+    }
+    for (int i = 0; i < MAX_SIMULTANEOUS; i++) {
+        free(fifo_connections[i]);
+    }
+    free(fifo_connections);
+    destroy_scheduler(scheduler);
     close(s_fd);
     free(buffer);
     return 0;
-}*/
+}
