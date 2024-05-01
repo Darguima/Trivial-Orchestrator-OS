@@ -37,8 +37,8 @@ void execute_process(Process process) {
         dup2(fd, STDERR_FILENO);
         close(fd);
 
-        //execlp("./arroz", "arroz", NULL);
-        perror("Failed to execute './arroz'");
+        execlp("bin/test_command", "test_command", NULL);
+        perror("Failed to execute 'bin/test_command'");
         exit(EXIT_FAILURE);
     } else {
         process->process_id = pid;
