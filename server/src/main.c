@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <process.h>
 
 #include "../../datapipe/globals.h"
 #include "fifo/create.h"

@@ -4,6 +4,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
+#include "process.h"
 
 typedef struct queue* Queue;
 typedef int (*EnqueueFunction)(Queue, Process);
