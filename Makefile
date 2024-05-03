@@ -4,9 +4,7 @@ build:
 	@echo "Building..."
 	$(MAKE) build_client
 	$(MAKE) build_orchestrator
-
-client: build_client
-orchestrator: build_orchestrator
+	$(MAKE) compile_commands
 
 build_client:
 	@echo "Building client..."
@@ -16,7 +14,12 @@ build_orchestrator:
 	@echo "Building orchestrator..."
 	$(MAKE) -C server/
 
+compile_commands:
+	@echo "Building command binaries..."
+	$(MAKE) -C bin/
+
 clean:
 	@echo "Cleaning..."
 	$(MAKE) -C client/ clean
 	$(MAKE) -C server/ clean
+	$(MAKE) -C bin/ clean
