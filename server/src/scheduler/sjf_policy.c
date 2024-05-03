@@ -4,7 +4,7 @@
 
 typedef struct sjf_queue
 {
-  Element *arr;
+  Process *arr;
   int size;
   int capacity;
   int next_id;
@@ -21,7 +21,7 @@ SJFQueue create_sjf_queue()
   queue->capacity = 16;
   queue->next_id = 0;
 
-  queue->arr = malloc(sizeof(Element *) * (long unsigned int)queue->capacity);
+  queue->arr = malloc(sizeof(Process *) * (long unsigned int)queue->capacity);
 
   printf("[DEBUG] - Created SJF queue with %d elements capacity;\n", queue->capacity);
 
@@ -42,7 +42,7 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process)
   {
 
     sjf_queue->capacity *= 2;
-    sjf_queue->arr = malloc(sizeof(Element) * (long unsigned int)sjf_queue->capacity);
+    sjf_queue->arr = malloc(sizeof(Process) * (long unsigned int)sjf_queue->capacity);
 
     printf("[DEBUG] - Resized SJF queue to %d elements;\n", sjf_queue->capacity);
   }
@@ -55,12 +55,12 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process)
 
   bubble_up(sjf_queue, sjf_queue->size - 1);
 
-  printf("[DEBUG] - Enqueued element %d to SJF queue;\n", element_id);
+  printf("[DEBUG] - Enqueued process %d to SJF queue;\n", element_id);
 
   return element_id;
 }
 
-Element dequeue_sjf(SJFQueue sjf_queue)
+Process dequeue_sjf(SJFQueue sjf_queue)
 {
   if (sjf_queue->size == 0)
   {
@@ -78,7 +78,7 @@ Element dequeue_sjf(SJFQueue sjf_queue)
     bubble_down(sjf_queue, 0);
   }
 
-  printf("[DEBUG] - Dequeued element from SJF queue - remain %d elements;\n", sjf_queue->size);
+  printf("[DEBUG] - Dequeued process from SJF queue - remain %d elements;\n", sjf_queue->size);
 
   return process;
 }

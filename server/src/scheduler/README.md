@@ -39,9 +39,6 @@ All the code is encapsulated, so you just need to create a new policy file with 
 ```c
 // replace policy with the policy name
 
-// This are the elements that will be stored in the queue
-typedef void* Element;
-
 // This is a structure that can store everything that you need
 typedef struct policy_queue* PolicyQueue;
 
@@ -50,9 +47,9 @@ Queue create_policy_queue();
 // free all the memory allocated by the queue
 void destroy_fcfs(FCFSQueue fcfs_queue);
 
-int enqueue_policy(Queue policy_queue, Element element);
+int enqueue_policy(Queue policy_queue, Process process);
 
-Element dequeue_policy(Queue policy_queue);
+Process dequeue_policy(Queue policy_queue);
 ```
 
 Then you just need add the policy to the `scheduler.c` file:

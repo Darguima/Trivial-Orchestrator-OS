@@ -9,7 +9,7 @@ FCFSQueue create_fcfs_queue();
 
 void destroy_fcfs(FCFSQueue fcfs_queue);
 
-int enqueue_fcfs(FCFSQueue fcfs_queue, Process element);
+int enqueue_fcfs(FCFSQueue fcfs_queue, Process process);
 
 Process dequeue_fcfs(FCFSQueue fcfs_queue);
 
