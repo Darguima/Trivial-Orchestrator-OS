@@ -22,7 +22,7 @@ SJFQueue create_sjf_queue()
 
   queue->arr = malloc(sizeof(Element *) * (long unsigned int)queue->capacity);
 
-  printf("[LOG] - Created SJF queue with %d elements capacity;\n", queue->capacity);
+  printf("[DEBUG] - Created SJF queue with %d elements capacity;\n", queue->capacity);
 
   return queue;
 }
@@ -32,7 +32,7 @@ void destroy_sjf(SJFQueue sjf_queue)
   free(sjf_queue->arr);
   free(sjf_queue);
 
-  printf("[LOG] - Destroyed SJF queue;\n");
+  printf("[DEBUG] - Destroyed SJF queue;\n");
 }
 
 int enqueue_sjf(SJFQueue sjf_queue, Process process)
@@ -43,7 +43,7 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process)
     sjf_queue->capacity *= 2;
     sjf_queue->arr = malloc(sizeof(Element) * (long unsigned int)sjf_queue->capacity);
 
-    printf("[LOG] - Resized SJF queue to %d elements;\n", sjf_queue->capacity);
+    printf("[DEBUG] - Resized SJF queue to %d elements;\n", sjf_queue->capacity);
   }
 
   int element_id = sjf_queue->next_id;
@@ -52,7 +52,7 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process)
   sjf_queue->arr[sjf_queue->size] = process;
   sjf_queue->size++;
 
-  printf("[LOG] - Enqueued element %d to SJF queue on position %d;\n", element_id, sjf_queue->size);
+  printf("[DEBUG] - Enqueued element %d to SJF queue on position %d;\n", element_id, sjf_queue->size);
 
   return element_id;
 }
@@ -61,14 +61,14 @@ Element dequeue_sjf(SJFQueue sjf_queue)
 {
   if (sjf_queue->size == 0)
   {
-    printf("[LOG] - SJF queue is empty;\n");
+    printf("[DEBUG] - SJF queue is empty;\n");
     return NULL;
   }
 
   sjf_queue->size--;
   Process process = sjf_queue->arr[sjf_queue->size];
 
-  printf("[LOG] - Dequeued element from SJF queue - remain %d elements;\n", sjf_queue->size);
+  printf("[DEBUG] - Dequeued element from SJF queue - remain %d elements;\n", sjf_queue->size);
 
   return process;
 }

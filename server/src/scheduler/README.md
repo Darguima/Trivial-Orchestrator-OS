@@ -81,8 +81,8 @@ Here is a visualization of multiple enqueue and dequeue operations:
 
 ```plaintext
 ===================================================================
-[LOG] - Created FCFS queue with 16 elements capacity;
-[LOG] - Orchestrator created with policy: FCFS;
+[DEBUG] - Created FCFS queue with 16 elements capacity;
+[DEBUG] - Orchestrator created with policy: FCFS;
   ENQUEUED: [ x  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _ ]
   ENQUEUED: [ x  x  _  _  _  _  _  _  _  _  _  _  _  _  _  _ ]
   ENQUEUED: [ x  x  x  _  _  _  _  _  _  _  _  _  _  _  _  _ ]

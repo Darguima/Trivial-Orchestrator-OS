@@ -22,7 +22,7 @@ FCFSQueue create_fcfs_queue() {
 
   queue->arr = malloc(sizeof(Element*) * (long unsigned int)queue->capacity);
 
-  printf("[LOG] - Created FCFS queue with %d elements capacity;\n", queue->capacity);
+  printf("[DEBUG] - Created FCFS queue with %d elements capacity;\n", queue->capacity);
 
   return queue;
 }
@@ -31,7 +31,7 @@ void destroy_fcfs(FCFSQueue fcfs_queue) {
   free(fcfs_queue->arr);
   free(fcfs_queue);
 
-  printf("[LOG] - Destroyed FCFS queue;\n");
+  printf("[DEBUG] - Destroyed FCFS queue;\n");
 }
 
 int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
@@ -54,7 +54,7 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
     fcfs_queue->arr = new_queue;
     fcfs_queue->capacity *= 2;
 
-    printf("[LOG] - Resized FCFS queue to %d elements;\n", fcfs_queue->capacity);
+    printf("[DEBUG] - Resized FCFS queue to %d elements;\n", fcfs_queue->capacity);
   }
 
   int element_id = fcfs_queue->next_id;
@@ -63,14 +63,14 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
   fcfs_queue->ending_index = (fcfs_queue->ending_index + 1) % fcfs_queue->capacity;
   fcfs_queue->arr[fcfs_queue->ending_index] = element;
 
-  printf("[LOG] - Enqueued element %d to FCFS queue on position %d;\n", element_id, fcfs_queue->ending_index);
+  printf("[DEBUG] - Enqueued element %d to FCFS queue on position %d;\n", element_id, fcfs_queue->ending_index);
 
   return element_id;
 }
 
 Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
-    //printf("[LOG] - FCFS queue is empty;\n");
+    //printf("[DEBUG] - FCFS queue is empty;\n");
     return NULL;
   }
 
@@ -84,7 +84,7 @@ Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   }
 
   int queue_len = get_fcfs_queue_length(fcfs_queue);
-  printf("[LOG] - Dequeued element from FCFS queue - remain %d elements;\n", queue_len);
+  printf("[DEBUG] - Dequeued element from FCFS queue - remain %d elements;\n", queue_len);
 
   return element;
 }

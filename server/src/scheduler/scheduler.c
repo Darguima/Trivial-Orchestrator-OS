@@ -54,7 +54,7 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy)
     exit(1);
   }
 
-  printf("[LOG] - Scheduler created with policy: %s;\n", schedule_policy == FCFS ? "FCFS" : schedule_policy == SJF ? "SJF"
+  printf("[DEBUG] - Scheduler created with policy: %s;\n", schedule_policy == FCFS ? "FCFS" : schedule_policy == SJF ? "SJF"
                                                                                                                    : "None");
 
   return scheduler;
@@ -62,7 +62,7 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy)
 
 void destroy_scheduler(Scheduler scheduler)
 {
-  printf("[LOG] - Destroying Scheduler;\n");
+  printf("[DEBUG] - Destroying Scheduler;\n");
   Process process;
   while ((process = scheduler->dequeue_fun(scheduler->queue)) != NULL)
   {
@@ -72,7 +72,7 @@ void destroy_scheduler(Scheduler scheduler)
 
   scheduler->destroy_fun(scheduler->queue);
   free(scheduler);
-  printf("[LOG] - Scheduler Destroyed;\n");
+  printf("[DEBUG] - Scheduler Destroyed;\n");
 }
 
 int enqueue_process(Scheduler scheduler, char *command, int estimated_runtime)
