@@ -10,7 +10,8 @@ typedef struct sjf_queue
   int next_id;
 } *SJFQueue;
 
-int get_sjf_queue_length(SJFQueue sjf_queue);
+void bubble_down(SJFQueue sjf_queue, int index);
+void bubble_up(SJFQueue sjf_queue, int index);
 
 SJFQueue create_sjf_queue()
 {
@@ -52,7 +53,9 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process)
   sjf_queue->arr[sjf_queue->size] = process;
   sjf_queue->size++;
 
-  printf("[DEBUG] - Enqueued element %d to SJF queue on position %d;\n", element_id, sjf_queue->size);
+  bubble_up(sjf_queue, sjf_queue->size - 1);
+
+  printf("[DEBUG] - Enqueued element %d to SJF queue;\n", element_id);
 
   return element_id;
 }
@@ -66,9 +69,71 @@ Element dequeue_sjf(SJFQueue sjf_queue)
   }
 
   sjf_queue->size--;
-  Process process = sjf_queue->arr[sjf_queue->size];
+
+  Process process = sjf_queue->arr[0];
+  sjf_queue->arr[0] = sjf_queue->arr[sjf_queue->size];
+
+  if (sjf_queue->size != 0)
+  {
+    bubble_down(sjf_queue, 0);
+  }
 
   printf("[DEBUG] - Dequeued element from SJF queue - remain %d elements;\n", sjf_queue->size);
 
   return process;
+}
+
+void bubble_down(SJFQueue sjf_queue, int index)
+{
+  int swap_index = -1;
+
+  int l_child_index = (index * 2) + 1;
+  int r_child_index = l_child_index + 1;
+
+  int parent_time = ((Process)sjf_queue->arr[index])->estimated_runtime;
+
+  if (l_child_index < sjf_queue->size)
+  {
+    int l_child_time = ((Process)sjf_queue->arr[l_child_index])->estimated_runtime;
+
+    swap_index = parent_time > l_child_time ? l_child_index : swap_index;
+
+    if (r_child_index < sjf_queue->size)
+    {
+      int r_child_time = ((Process)sjf_queue->arr[r_child_index])->estimated_runtime;
+
+      swap_index = r_child_time > parent_time    ? swap_index
+                   : r_child_time < l_child_time ? r_child_index
+                                                 : l_child_index;
+    }
+  }
+
+  if (swap_index == -1)
+    return;
+
+  Process swap = sjf_queue->arr[index];
+  sjf_queue->arr[index] = sjf_queue->arr[swap_index];
+  sjf_queue->arr[swap_index] = swap;
+
+  bubble_down(sjf_queue, swap_index);
+}
+
+void bubble_up(SJFQueue sjf_queue, int index)
+{
+  if (index == 0)
+    return;
+
+  int parent_index = ((index + 1) / 2) - 1;
+
+  int child_time = ((Process)sjf_queue->arr[index])->estimated_runtime;
+  int parent_time = ((Process)sjf_queue->arr[parent_index])->estimated_runtime;
+
+  if (parent_time > child_time)
+  {
+    Process swap = sjf_queue->arr[index];
+    sjf_queue->arr[index] = sjf_queue->arr[parent_index];
+    sjf_queue->arr[parent_index] = swap;
+
+    bubble_up(sjf_queue, parent_index);
+  }
 }
