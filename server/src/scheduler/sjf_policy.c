@@ -42,7 +42,7 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process)
   {
 
     sjf_queue->capacity *= 2;
-    sjf_queue->arr = malloc(sizeof(Process) * (long unsigned int)sjf_queue->capacity);
+    sjf_queue->arr = realloc(sjf_queue, sizeof(Process) * (long unsigned int)sjf_queue->capacity);
 
     printf("[DEBUG] - Resized SJF queue to %d elements;\n", sjf_queue->capacity);
   }
