@@ -3,12 +3,21 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <sys/stat.h>
 #include "../../datapipe/globals.h"
 #include "commands/command_sender.h"
 
 #define TERMINAL_YELLOW "\033[0;33m"
 #define TERMINAL_RESET "\033[0m"
+
+
+void create_client_fifo(int client_pid) {
+    char* c_fifo = (char*)malloc(MAX_FIFO_NAME * sizeof(char));
+    sprintf(c_fifo, "%s_%d", C_FIFO_PATH, client_pid);
+    mkfifo(c_fifo, 0666);
+    free(c_fifo);
+    return;
+} 
 
 void ask_text() {
     const char* prompt = TERMINAL_YELLOW "Enter a command:\n >> " TERMINAL_RESET;
