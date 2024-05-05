@@ -37,7 +37,7 @@ char** command_interpreter(char* command) {
     // Remove the quotes from the arguments
     for (int j = 0; j < i; j++) {
         size_t arg_length = strlen(command_args[j]);
-        if (command_args[j][0] == '"' && command_args[j][arg_length - 1] == '"') {
+        if ( command_args[j][0] == '"' && command_args[j][arg_length - 1] == '"') {
             command_args[j]++;
             command_args[j][arg_length - 2] = '\0';
         }
@@ -53,6 +53,7 @@ char** command_interpreter(char* command) {
         }
     }
 
+
     // Free memory and set extra pointers to NULL
     while (i < MAX_COMMAND_LENGTH) {
         command_args[i] = NULL;
@@ -61,6 +62,7 @@ char** command_interpreter(char* command) {
 
     return command_args;
 }
+
 
 char* get_command (char* command) {
 
@@ -97,6 +99,53 @@ char* buffer = strdup(command); // Creating a copy of the command
     }
 
     free(buffer); // Free the buffer
+    return result;
+}
+
+char* get_command_pipeline(char* command) {
+    // Command is of type "execute 10 -p ls -l | grep '.txt' | wc -l"
+    char* buffer = strdup(command); // Creating a copy of the command
+    if (buffer == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+
+    // Use strtok to tokenize the string
+    const char* delim = " ";
+    char* token;
+    int foundP = 0;
+
+    // Tokenize up to "-p"
+    for (token = strtok(buffer, delim); token != NULL; token = strtok(NULL, delim)) {
+        if (strcmp(token, "-p") == 0) {
+            foundP = 1;
+            break;
+        }
+    }
+
+    if (!foundP) {
+        fprintf(stderr, "Command switch '-p' not found in the command string.\n");
+        free(buffer);
+        return NULL;
+    }
+
+    // The rest of the string after "-p" is the command
+    token = strtok(NULL, ""); // Grab the rest of the string after "-p"
+
+    if (token == NULL) {
+        fprintf(stderr, "No command found after '-p'\n");
+        free(buffer);
+        return NULL;
+    }
+
+    // Duplicate the result to return, because we will free the buffer
+    char* result = strdup(token);
+    if (result == NULL) {
+        fprintf(stderr, "Memory allocation failed for result\n");
+    }
+
+    // Clean up the original buffer
+    free(buffer);
     return result;
 }
 
@@ -189,7 +238,7 @@ char** parse_command(const char* command) {
     // Process the remaining arguments
     while ((token = strtok(NULL, delim)) != NULL) {
         // Realocates the array of arguments
-        char** new_args = realloc(args, (arg_count + 2) * sizeof(char*)); // +2 para novo arg e NULL
+        char** new_args = realloc(args, (arg_count + 2) * sizeof(char*)); // +2 for the new argument and the NULL terminator
         if (new_args == NULL) {
            printf("Failed to reallocate arguments array");
             free(args); // Free the old array
@@ -208,3 +257,153 @@ char** parse_command(const char* command) {
 }
 
 
+int is_a_simple_process (char* command ) {
+
+     if (strstr(command, "-u") != NULL) {
+        return 1;  // It is a simple process
+    } else {
+        return 0;  // It is a pipeline process
+    }
+
+
+}
+
+char** parse_command_segment(char* segment) {
+    const int INITIAL_BUF_SIZE = MAX_BUF_SIZE;
+    int position = 0, bufsize = INITIAL_BUF_SIZE;
+    char** tokens = malloc(bufsize * sizeof(char*));
+    char* token;
+
+    if (!tokens) {
+        fprintf(stderr, "Allocation error\n");
+        return NULL;
+    }
+
+    token = strtok(segment, " ");
+    while (token != NULL) {
+        tokens[position++] = strdup(token); // DOuble the token
+        if (position >= bufsize) {
+            bufsize += INITIAL_BUF_SIZE;
+            tokens = realloc(tokens, bufsize * sizeof(char*));
+            if (!tokens) {
+                fprintf(stderr, "Allocation error\n");
+                for (int i = 0; i < position; i++) free(tokens[i]); // Free the memory allocated for the tokens
+                return NULL;
+            }
+        }
+        token = strtok(NULL, " ");
+    }
+    tokens[position] = NULL;
+
+
+   
+    return tokens;
+}
+
+void execute_command_pipeline(char **cmd_args, int input_fd, int output_fd) {
+    if (input_fd != STDIN_FILENO) {
+        dup2(input_fd, STDIN_FILENO);
+        close(input_fd);
+    }
+    if (output_fd != STDOUT_FILENO) {
+        dup2(output_fd, STDOUT_FILENO);
+        close(output_fd);
+    }
+
+    execvp(cmd_args[0], cmd_args);
+    perror("execvp");
+    exit(EXIT_FAILURE);
+}
+
+
+
+void execute_pipeline_process(Process process) {
+    int num_pipes = 0;
+   char* command = get_command_pipeline(process->command);
+    for (int i = 0; command[i] != '\0'; i++) {
+        if (command[i] == '|') num_pipes++;
+    }
+
+    int pipefds[num_pipes][2];  // Create a 2D array for pipes
+    for (int i = 0; i < num_pipes; i++) {
+        if (pipe(pipefds[i]) == -1) {  // Initialize each pipe
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    char* command_segment = strtok(command, "|");
+    int i = 0;
+    while (command_segment != NULL) {
+        char *next_command = strtok(NULL, "|");
+        pid_t pid = fork();
+        if (pid == -1) {
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+
+        if (pid == 0) { // Child process
+            // Redirect output to the next command or to the output file if it's the last command
+            int output_fd = (next_command) ? pipefds[i][1] : STDOUT_FILENO;
+            if (!next_command) {
+                // Last command, redirect stdout to a file
+                char output_file_path[256];
+                sprintf(output_file_path, "%soutput_%d.txt", TASKS_PATH, process->id);
+                int fd = open(output_file_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+                if (fd < 0) {
+                    perror("Failed to open output file");
+                    exit(EXIT_FAILURE);
+                }
+                output_fd = fd;
+            }
+
+            execute_command_pipeline(parse_command_segment(command_segment), (i == 0) ? STDIN_FILENO : pipefds[i-1][0], output_fd);
+            // Note: child process should never reach here.
+        }
+
+        // Parent closes used fds
+        if (i != 0) {
+            close(pipefds[i - 1][0]);
+        }
+        if (next_command) {
+            close(pipefds[i][1]);
+        }
+
+        command_segment = next_command;
+        i++;
+    }
+
+    // Wait for all children to finish
+    while (wait(NULL) > 0);
+}
+
+
+
+
+
+void execute_simple_process (Process process) {
+      char** args = parse_command(process->command); // this memory will be freed by the execvp function
+        char file_process[256]; // format is process_id.txt
+        sprintf(file_process, "%soutput_%d.txt",TASKS_PATH,process->id);
+        int fd = open(file_process, O_WRONLY | O_CREAT | O_APPEND, 0666);
+        if (fd == -1) {
+            perror("Failed to open log file");
+            exit(EXIT_FAILURE);
+        }
+
+        dup2(fd, STDOUT_FILENO);
+        dup2(fd, STDERR_FILENO);
+        close(fd);
+
+        int check = execvp(args[0], args); // exec will free the memory allocated for args array 
+
+       if (check == -1) {
+            perror("Failed to execute command");
+            for (int i = 0; args[i] != NULL; i++) {
+                free(args[i]);
+            }
+            exit(EXIT_FAILURE);
+        }
+
+
+}

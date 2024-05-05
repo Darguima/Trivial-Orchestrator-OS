@@ -23,8 +23,6 @@ int process_count = 0; // Number of processes (fifos) in execution
 
 
 
-
-
 void execute_process(Process process) {
     int pid;
     pid = fork();
@@ -32,31 +30,15 @@ void execute_process(Process process) {
         perror("Failed to fork");
         return;
     }
-    if (pid == 0) { // Child process
+    if (pid == 0) { // Child process    
+        if (is_a_simple_process(process->command)) {
+            execute_simple_process(process);
+        }
+        else {
+            execute_pipeline_process(process);
+        }
+        _exit(EXIT_SUCCESS);
      
-        char** args = parse_command(process->command); // this memory will be freed by the execvp function
-        char file_process[256]; // format is process_id.txt
-        sprintf(file_process, "%s_%d.txt",TASKS_PATH,process->id);
-        int fd = open(file_process, O_WRONLY | O_CREAT | O_APPEND, 0666);
-        if (fd == -1) {
-            perror("Failed to open log file");
-            exit(EXIT_FAILURE);
-        }
-
-        dup2(fd, STDOUT_FILENO);
-        dup2(fd, STDERR_FILENO);
-        close(fd);
-
-        int check = execvp(args[0], args); // exec will free the memory allocated for args array 
-
-       if (check == -1) {
-            perror("Failed to execute command");
-            for (int i = 0; args[i] != NULL; i++) {
-                free(args[i]);
-            }
-            exit(EXIT_FAILURE);
-        }
-
         
 }
  else {
@@ -155,7 +137,7 @@ int main() {
     
             // advance 1 blank space in the buffer
            else { char* command = strchr(buffer, ' ') + 1;
-            char* new_command = strdup (command);
+            char* new_command = strdup (command);  
                 int id = enqueue_process(scheduler,new_command, atoi(command_args[2])); // Enqueue the process
 
                 // Send the response to the client

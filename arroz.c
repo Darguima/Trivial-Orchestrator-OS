@@ -4,7 +4,13 @@
 #include <unistd.h>
 
 int main () {
-    sleep(5);
-    printf("Testing scheduler \n");
+    printf("arroz é mt bom aaaaa\n"); 
+    printf("arroz é mt bom aaaaa\n");
+    fflush(stdout);
+    sleep(1);
+    printf("arroz é mt bom aaaaa\n");
+    printf("arroz é mt bom aaaaa\n");
+    fflush(stdout);
+    sleep(1);
     return 0;
 }
