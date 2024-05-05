@@ -21,148 +21,7 @@ int active_tasks = 0; // Active tasks counter
 Process processes[MAX_SIMULTANEOUS]; // Array to store the processes in execution
 int process_count = 0; // Number of processes (fifos) in execution
 
-void status_write_executing (char* client_fifo_path) {
 
-    char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
-    if (buffer == NULL) {
-        perror("Failed to allocate memory for buffer");
-        exit(EXIT_FAILURE);
-    }
-
-    int client_fifo_fd = open(client_fifo_path, O_WRONLY);
-    if (client_fifo_fd == -1) {
-        perror("Error opening client FIFO");
-        free(buffer);
-        exit(EXIT_FAILURE);
-    }
-
-    // Send the header
-    snprintf(buffer, MAX_BUF_SIZE, "Executing\n");
-    write(client_fifo_fd, buffer, strlen(buffer));
-    //memset(buffer, 0, MAX_BUF_SIZE);
-
-    // Send the processes in execution
-    for (int i = 0; i < active_tasks; i++) {
-        snprintf(buffer, MAX_BUF_SIZE, "Task ID = %d %s\n", processes[i]->id, processes[i]->command);
-        write(client_fifo_fd, buffer, strlen(buffer));
-        memset(buffer, 0, MAX_BUF_SIZE);
-    }
-    free(buffer);
-
-     char* buffer_2 = malloc(sizeof(char) * MAX_BUF_SIZE);
-    if (buffer_2 == NULL) {
-        perror("Failed to allocate memory for buffer");
-        exit(EXIT_FAILURE);
-    }
-
-
-    snprintf(buffer_2, MAX_BUF_SIZE, "Finished\n");
-    write(client_fifo_fd, buffer_2, strlen(buffer_2));
-
-    int log_fd = open(LOG_PATH, O_RDONLY);
-    if (log_fd == -1) {
-        perror("Error opening log file");
-        free(buffer_2);
-        exit(EXIT_FAILURE);
-    }
-
-    while (read(log_fd, buffer_2, MAX_BUF_SIZE) > 0) {
-        write(client_fifo_fd, buffer_2, strlen(buffer_2));
-        memset(buffer_2, 0, MAX_BUF_SIZE);
-    }
-
-    close(log_fd);
-    close(client_fifo_fd);
-    free(buffer_2);
-
-}
-
-void status_write_finished (char* client_fifo_path) {
-  // opens log file and sends it to the client with the header: Finished
-    char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
-    if (buffer == NULL) {
-        perror("Failed to allocate memory for buffer");
-        exit(EXIT_FAILURE);
-    }
-
-    int client_fifo_fd = open(client_fifo_path, O_WRONLY);
-    if (client_fifo_fd == -1) {
-        perror("Error opening client FIFO");
-        free(buffer);
-        exit(EXIT_FAILURE);
-    }
-
-    snprintf(buffer, MAX_BUF_SIZE, "Finished\n");
-    write(client_fifo_fd, buffer, strlen(buffer));
-
-    int log_fd = open(LOG_PATH, O_RDONLY);
-    if (log_fd == -1) {
-        perror("Error opening log file");
-        free(buffer);
-        exit(EXIT_FAILURE);
-    }
-
-    while (read(log_fd, buffer, MAX_BUF_SIZE) > 0) {
-        write(client_fifo_fd, buffer, strlen(buffer));
-        memset(buffer, 0, MAX_BUF_SIZE);
-    }
-
-    close(log_fd);
-    close(client_fifo_fd);
-    free(buffer);
-  
-}
-
-void status_writer(char* client_fifo_path) {
-    if (fork () == 0 ) {
-    status_write_executing(client_fifo_path);
-   // status_write_finished(client_fifo_path);
-      _exit(0);
-    }
-   
-  
-
-}
-
-
-char** parse_command(const char* command) {
-    printf ("[DEBUG] - Parsing command: %s\n", command);
-    // Creates a copy of the command string
-    char* buffer = strdup(command);
-    if (buffer == NULL) {
-        printf("Failed to duplicate command string");
-    }
-
-    int arg_count = 0;
-    char** args = NULL;
-    char* token;
-    const char* delim = " ";
-
-    
-    strtok(buffer, delim); // "execute"
-    strtok(NULL, delim);   // "time"
-    strtok(NULL, delim);   // "-u"
-
-    // Process the remaining arguments
-    while ((token = strtok(NULL, delim)) != NULL) {
-        // Realocates the array of arguments
-        char** new_args = realloc(args, (arg_count + 2) * sizeof(char*)); // +2 para novo arg e NULL
-        if (new_args == NULL) {
-           printf("Failed to reallocate arguments array");
-            free(args); // Free the old array
-            free(buffer); // Free the buffer
-            return NULL;
-        }
-        args = new_args;
-        args[arg_count++] = strdup(token);
-    }
-    if (args != NULL) {
-        args[arg_count] = NULL;  // Last argument is NULL
-    }
-
-    free(buffer); // Free the buffer
-    return args;
-}
 
 
 
@@ -188,10 +47,13 @@ void execute_process(Process process) {
         dup2(fd, STDERR_FILENO);
         close(fd);
 
-        int check = execvp(args[0], args);
+        int check = execvp(args[0], args); // exec will free the memory allocated for args array 
 
        if (check == -1) {
             perror("Failed to execute command");
+            for (int i = 0; args[i] != NULL; i++) {
+                free(args[i]);
+            }
             exit(EXIT_FAILURE);
         }
 
@@ -224,7 +86,11 @@ void handle_finished_task() {
                 gettimeofday(&end_time, NULL);
                 double duration = (double)(end_time.tv_sec - processes[i]->start_time.tv_sec) + (double)(end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
                 char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
-                sprintf(buffer, "%d %s %.4fs\n", processes[i]->id,processes[i]->command ,duration);
+                
+                char* command =  get_command(processes[i]->command);           
+     
+                 sprintf(buffer, "%d %s %.4fs\n", processes[i]->id,command ,duration);
+                 free(command);
                 //writing to log file 
                 int fd = open(LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
                 if (fd == -1) {
@@ -278,7 +144,7 @@ int main() {
 
             
             if (strcmp(command_args[1],"status") == 0) {
-            status_writer(client_fifo_path);
+            status_writer(client_fifo_path,processes, active_tasks);
             free(command_args);
             free(client_fifo_path);
             memset(buffer, 0, MAX_BUF_SIZE);
@@ -290,7 +156,7 @@ int main() {
             // advance 1 blank space in the buffer
            else { char* command = strchr(buffer, ' ') + 1;
             char* new_command = strdup (command);
-                int id = enqueue_process(scheduler,new_command, 5); // Enqueue the process
+                int id = enqueue_process(scheduler,new_command, atoi(command_args[2])); // Enqueue the process
 
                 // Send the response to the client
                 int client_fifo_fd = open(client_fifo_path, O_WRONLY);
