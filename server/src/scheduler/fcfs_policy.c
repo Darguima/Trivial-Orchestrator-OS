@@ -95,15 +95,18 @@ Process dequeue_fcfs(FCFSQueue fcfs_queue) {
 }
 
 Process* status_fcfs(FCFSQueue fcfs_queue) {
+  
+  if (fcfs_queue->ending_index == -1 || get_fcfs_queue_length(fcfs_queue) == 0){
+    return NULL;
+  }
   Process* status = malloc(sizeof(Process) * (long unsigned int)(get_fcfs_queue_length(fcfs_queue) + 1));
 
   int status_index = 0, queue_index = fcfs_queue->starting_index;
-  do
-  {
-    status[status_index] = fcfs_queue->arr[queue_index];
+
+do {
+    status[status_index++] = fcfs_queue->arr[queue_index];
     queue_index = (queue_index + 1) % fcfs_queue->capacity;
-    status_index++;
-  } while (status_index < get_fcfs_queue_length(fcfs_queue));
+} while (queue_index != (fcfs_queue->ending_index + 1) % fcfs_queue->capacity);
 
   status[status_index] = NULL;
 

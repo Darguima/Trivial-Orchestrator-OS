@@ -65,10 +65,10 @@ int main(int argc, char **argv)
   ssize_t read_bytes;
   memset(buffer, 0, MAX_BUF_SIZE);
   // doing a while loop because one of the request can be a status request
-  while ((read_bytes = read(client_fd, buffer, MAX_BUF_SIZE - 1)) > 0)
+  while ((read_bytes = read(client_fd, buffer, MAX_BUF_SIZE)) > 0)
   {
-    buffer[read_bytes] = '\0';
-    printf("%s\n", buffer);
+    buffer[read_bytes+1] = '\0';
+    printf("%s", buffer);
     memset(buffer, 0, MAX_BUF_SIZE);
   }
 
