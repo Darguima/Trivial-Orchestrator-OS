@@ -1,9 +1,11 @@
 #include "scheduler/scheduler.h"
 #include "scheduler/fcfs_policy.h"
+#include "scheduler/sjf_policy.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
+#include "process.h"
 
 typedef struct queue *Queue;
 typedef int (*EnqueueFunction)(Queue, Process);
@@ -38,15 +40,29 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy)
     scheduler->enqueue_fun = (EnqueueFunction)enqueue_fcfs;
     scheduler->dequeue_fun = (DequeueFunction)dequeue_fcfs;
   }
+  else if (scheduler->policy == SJF)
+  {
+    scheduler->queue = (Queue)create_sjf_queue();
+    scheduler->destroy_fun = (DestroyFunction)destroy_sjf;
 
-  printf("[LOG] - Scheduler created with policy: %s;\n", schedule_policy == FCFS ? "FCFS" : "None");
+    scheduler->enqueue_fun = (EnqueueFunction)enqueue_sjf;
+    scheduler->dequeue_fun = (DequeueFunction)dequeue_sjf;
+  }
+  else
+  {
+    printf("[ERROR] - Invalid Schedule Policy;\n");
+    exit(1);
+  }
+
+  printf("[DEBUG] - Scheduler created with policy: %s;\n", schedule_policy == FCFS ? "FCFS" : schedule_policy == SJF ? "SJF"
+                                                                                                                   : "None");
 
   return scheduler;
 }
 
 void destroy_scheduler(Scheduler scheduler)
 {
-  printf("[LOG] - Destroying Scheduler;\n");
+  printf("[DEBUG] - Destroying Scheduler;\n");
   Process process;
   while ((process = scheduler->dequeue_fun(scheduler->queue)) != NULL)
   {
@@ -56,7 +72,7 @@ void destroy_scheduler(Scheduler scheduler)
 
   scheduler->destroy_fun(scheduler->queue);
   free(scheduler);
-  printf("[LOG] - Scheduler Destroyed;\n");
+  printf("[DEBUG] - Scheduler Destroyed;\n");
 }
 
 int enqueue_process(Scheduler scheduler, char *command, int estimated_runtime)
