@@ -3,7 +3,7 @@
 #include "stdlib.h"
 
 typedef struct fcfs_queue {
-  Element* arr;
+  Process* arr;
   int starting_index;
   int ending_index;
   int capacity;
@@ -20,9 +20,9 @@ FCFSQueue create_fcfs_queue() {
   queue->starting_index = 0;
   queue->ending_index = -1;
 
-  queue->arr = malloc(sizeof(Element*) * (long unsigned int)queue->capacity);
+  queue->arr = malloc(sizeof(Process*) * (long unsigned int)queue->capacity);
 
-  printf("[LOG] - Created FCFS queue with %d elements capacity;\n", queue->capacity);
+  printf("[DEBUG] - Created FCFS queue with %d processes capacity;\n", queue->capacity);
 
   return queue;
 }
@@ -31,14 +31,14 @@ void destroy_fcfs(FCFSQueue fcfs_queue) {
   free(fcfs_queue->arr);
   free(fcfs_queue);
 
-  printf("[LOG] - Destroyed FCFS queue;\n");
+  printf("[DEBUG] - Destroyed FCFS queue;\n");
 }
 
-int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
+int enqueue_fcfs(FCFSQueue fcfs_queue, Process process) {
   int queue_len = get_fcfs_queue_length(fcfs_queue);
 
   if (queue_len == fcfs_queue->capacity) {
-    Element* new_queue = malloc(sizeof(Element) * (long unsigned int)fcfs_queue->capacity * 2);
+    Process* new_queue = malloc(sizeof(Process) * (long unsigned int)fcfs_queue->capacity * 2);
 
     int new_queue_index = 0, old_queue_index = fcfs_queue->starting_index;
     do {
@@ -54,27 +54,27 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Element element) {
     fcfs_queue->arr = new_queue;
     fcfs_queue->capacity *= 2;
 
-    printf("[LOG] - Resized FCFS queue to %d elements;\n", fcfs_queue->capacity);
+    printf("[DEBUG] - Resized FCFS queue to %d processes;\n", fcfs_queue->capacity);
   }
 
-  int element_id = fcfs_queue->next_id;
+  int process_id = fcfs_queue->next_id;
 
   fcfs_queue->next_id++;
   fcfs_queue->ending_index = (fcfs_queue->ending_index + 1) % fcfs_queue->capacity;
-  fcfs_queue->arr[fcfs_queue->ending_index] = element;
+  fcfs_queue->arr[fcfs_queue->ending_index] = process;
 
-  printf("[LOG] - Enqueued element %d to FCFS queue on position %d;\n", element_id, fcfs_queue->ending_index);
+  printf("[DEBUG] - Enqueued process %d to FCFS queue on position %d;\n", process_id, fcfs_queue->ending_index);
 
-  return element_id;
+  return process_id;
 }
 
-Element dequeue_fcfs(FCFSQueue fcfs_queue) {
+Process dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
-    //printf("[LOG] - FCFS queue is empty;\n");
+    //printf("[DEBUG] - FCFS queue is empty;\n");
     return NULL;
   }
 
-  Element element = fcfs_queue->arr[fcfs_queue->starting_index];
+  Process process = fcfs_queue->arr[fcfs_queue->starting_index];
 
   if (fcfs_queue->starting_index == fcfs_queue->ending_index) {
     fcfs_queue->starting_index = 0;
@@ -84,9 +84,9 @@ Element dequeue_fcfs(FCFSQueue fcfs_queue) {
   }
 
   int queue_len = get_fcfs_queue_length(fcfs_queue);
-  printf("[LOG] - Dequeued element from FCFS queue - remain %d elements;\n", queue_len);
+  printf("[DEBUG] - Dequeued process from FCFS queue - remain %d processes;\n", queue_len);
 
-  return element;
+  return process;
 }
 
 int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
