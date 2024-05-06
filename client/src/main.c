@@ -4,34 +4,48 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "../../datapipe/globals.h"
 #include "commands/command_sender.h"
 
 int client_pid;
 
-void signal_handler(int signum) {
-  if (signum == SIGINT || signum == SIGTERM) {
+void signal_handler(int signum)
+{
+  if (signum == SIGINT || signum == SIGTERM)
+  {
     send_delete_task_fifo(client_pid);
     exit(EXIT_SUCCESS);
   }
 }
 
-int main(int argc, char** argv) {
-  signal(SIGINT, signal_handler); // CTRL + C
+int main(int argc, char **argv)
+{
+  signal(SIGINT, signal_handler);  // CTRL + C
   signal(SIGTERM, signal_handler); // exit
 
   client_pid = getpid();
-  send_create_task_fifo(client_pid);
+  // creating client FIFO
 
-  if (argc <= 1) {
+  create_client_fifo(client_pid);
+
+  char *c_fifo = (char *)malloc(MAX_FIFO_NAME * sizeof(char));
+  sprintf(c_fifo, "%s_%d", C_FIFO_PATH, client_pid);
+
+  if (argc <= 1)
+  {
     ask_for_command(client_pid);
-  } else {
+  }
+  else
+  {
     // Command is argv except the first element
-    char* command = (char*)malloc(MAX_COMMAND_LENGTH * sizeof(char));
-    for (int i = 1; i < argc; i++) {
+    char *command = (char *)malloc(MAX_COMMAND_LENGTH * sizeof(char));
+    for (int i = 1; i < argc; i++)
+    {
       strcat(command, argv[i]);
-      if (i < argc - 1) {
+      if (i < argc - 1)
+      {
         strcat(command, " ");
       }
     }
@@ -39,29 +53,30 @@ int main(int argc, char** argv) {
     free(command);
   }
 
-  // Open client FIFO for reading
-  char* predicted_c_fifo = (char*)malloc(MAX_FIFO_NAME * sizeof(char));
-  sprintf(predicted_c_fifo, "%s_%d", C_FIFO_PATH, client_pid);
-  int client_fd = open(predicted_c_fifo, O_RDONLY);
-  if (client_fd == -1) {
+  // Read response from server
+
+  int client_fd = open(c_fifo, O_RDONLY);
+  if (client_fd == -1)
+  {
     perror("Error opening client FIFO");
     exit(EXIT_FAILURE);
   }
-
-  // Read response from server
-  char* buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
+  char *buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
   ssize_t read_bytes;
-  if ((read_bytes = read(client_fd, buffer, MAX_BUF_SIZE)) > 0) {
-    printf("[DEBUG] - ID of the task: %s\n", buffer);
-  } else {
-    perror("Failed to read from client FIFO");
-    exit(EXIT_FAILURE);
+  memset(buffer, 0, MAX_BUF_SIZE);
+  // doing a while loop because one of the request can be a status request
+  while ((read_bytes = read(client_fd, buffer, MAX_BUF_SIZE - 1)) > 0)
+  {
+    buffer[read_bytes] = '\0';
+    printf("%s\n", buffer);
+    memset(buffer, 0, MAX_BUF_SIZE);
   }
 
-  // Close and remove client FIFO
+  // Close and remove client FIFO , and deleting the FIFO and buffer
   close(client_fd);
+  remove(c_fifo);
+  free(c_fifo);
   free(buffer);
-  free(predicted_c_fifo);
 
   return EXIT_SUCCESS;
 }

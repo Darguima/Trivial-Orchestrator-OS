@@ -2,7 +2,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-char *main() {
+char *main()
+{
     sleep(5);
     return "Ola";
 }

@@ -3,7 +3,7 @@
 
 #include "process.h"
 
-typedef struct fcfs_queue* FCFSQueue;
+typedef struct fcfs_queue *FCFSQueue;
 
 FCFSQueue create_fcfs_queue();
 

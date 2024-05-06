@@ -8,11 +8,12 @@ typedef struct fcfs_queue {
   int ending_index;
   int capacity;
   int next_id;
-}* FCFSQueue;
+} *FCFSQueue;
 
 int get_fcfs_queue_length(FCFSQueue fcfs_queue);
 
-FCFSQueue create_fcfs_queue() {
+FCFSQueue create_fcfs_queue()
+{
   FCFSQueue queue = malloc(sizeof(struct fcfs_queue));
 
   queue->next_id = 0;
@@ -27,7 +28,8 @@ FCFSQueue create_fcfs_queue() {
   return queue;
 }
 
-void destroy_fcfs(FCFSQueue fcfs_queue) {
+void destroy_fcfs(FCFSQueue fcfs_queue)
+{
   free(fcfs_queue->arr);
   free(fcfs_queue);
 
@@ -41,7 +43,8 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Process process) {
     Process* new_queue = malloc(sizeof(Process) * (long unsigned int)fcfs_queue->capacity * 2);
 
     int new_queue_index = 0, old_queue_index = fcfs_queue->starting_index;
-    do {
+    do
+    {
       new_queue[new_queue_index] = fcfs_queue->arr[old_queue_index];
       old_queue_index = (old_queue_index + 1) % fcfs_queue->capacity;
       new_queue_index++;
@@ -70,16 +73,18 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Process process) {
 
 Process dequeue_fcfs(FCFSQueue fcfs_queue) {
   if (fcfs_queue->ending_index == -1) {
-    //printf("[DEBUG] - FCFS queue is empty;\n");
     return NULL;
   }
 
   Process process = fcfs_queue->arr[fcfs_queue->starting_index];
 
-  if (fcfs_queue->starting_index == fcfs_queue->ending_index) {
+  if (fcfs_queue->starting_index == fcfs_queue->ending_index)
+  {
     fcfs_queue->starting_index = 0;
     fcfs_queue->ending_index = -1;
-  } else {
+  }
+  else
+  {
     fcfs_queue->starting_index = (fcfs_queue->starting_index + 1) % fcfs_queue->capacity;
   }
 
@@ -89,7 +94,8 @@ Process dequeue_fcfs(FCFSQueue fcfs_queue) {
   return process;
 }
 
-int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
+int get_fcfs_queue_length(FCFSQueue fcfs_queue)
+{
   if (fcfs_queue->ending_index == -1)
     return 0;
 
@@ -97,6 +103,3 @@ int get_fcfs_queue_length(FCFSQueue fcfs_queue) {
              ? fcfs_queue->ending_index - fcfs_queue->starting_index + 1
              : fcfs_queue->capacity - fcfs_queue->starting_index + fcfs_queue->ending_index + 1;
 }
-
-
-
