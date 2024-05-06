@@ -16,6 +16,9 @@ int main() {
 
   enqueue_process(scheduler, "ls /etc/ -la", 10);
 
+  // List of all processes in the scheduler
+  Process* status = scheduler_status(scheduler)
+
   Process p = dequeue_process(scheduler);
 
   /*
@@ -50,6 +53,9 @@ void destroy_fcfs(FCFSQueue fcfs_queue);
 int enqueue_policy(Queue policy_queue, Process process);
 
 Process dequeue_policy(Queue policy_queue);
+
+// Return an array with all the processes in the queue
+Process* status_policy(Queue policy_queue);
 ```
 
 Then you just need add the policy to the `scheduler.c` file:
@@ -63,6 +69,7 @@ if (scheduler->policy == YOUR_POLICY) {
     
   scheduler->enqueue_fun = (EnqueueFunction)enqueue_policy;
   scheduler->dequeue_fun = (DequeueFunction)dequeue_policy;
+  scheduler->status_fun = (StatusFunction)status_policy;
 }
 ```
 
