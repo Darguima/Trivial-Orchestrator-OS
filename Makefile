@@ -23,3 +23,4 @@ clean:
 	$(MAKE) -C client/ clean
 	$(MAKE) -C server/ clean
 	$(MAKE) -C bin/ clean
+	@rm datapipe/c_fifo_* datapipe/taskoutput_*.txt datapipe/log.txt
