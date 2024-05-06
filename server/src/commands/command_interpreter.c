@@ -168,7 +168,13 @@ void status_writer(char* client_fifo_path,Process processes[MAX_SIMULTANEOUS],in
 
     // Send the header
     snprintf(buffer, MAX_BUF_SIZE, "Executing\n");
-    write(client_fifo_fd, buffer, strlen(buffer));
+   int check =  write(client_fifo_fd, buffer, strlen(buffer));
+    if (check == -1) {
+        perror("Failed to write to client FIFO");
+        free(buffer);
+        close(client_fifo_fd);
+        exit(EXIT_FAILURE);
+    }
     //memset(buffer, 0, MAX_BUF_SIZE);
 
     // Send the processes in execution
@@ -180,7 +186,13 @@ void status_writer(char* client_fifo_path,Process processes[MAX_SIMULTANEOUS],in
             continue;
         }
         snprintf(buffer, MAX_BUF_SIZE, "Task ID = %d %s\n", processes[i]->id, command);
-        write(client_fifo_fd, buffer, strlen(buffer));
+        check = write(client_fifo_fd, buffer, strlen(buffer));
+        if (check == -1) {
+            perror("Failed to write to client FIFO");
+            free(command);
+            memset(buffer, 0, MAX_BUF_SIZE);
+            continue;
+        }
         memset(buffer, 0, MAX_BUF_SIZE);
         free(command);
         
@@ -195,7 +207,13 @@ void status_writer(char* client_fifo_path,Process processes[MAX_SIMULTANEOUS],in
 
 
     snprintf(buffer_2, MAX_BUF_SIZE, "Finished\n");
-    write(client_fifo_fd, buffer_2, strlen(buffer_2));
+    check = write(client_fifo_fd, buffer_2, strlen(buffer_2));
+    if (check == -1) {
+        perror("Failed to write to client FIFO");
+        free(buffer_2);
+        close(client_fifo_fd);
+        exit(EXIT_FAILURE);
+    }
 
     int log_fd = open(LOG_PATH, O_RDONLY);
     if (log_fd == -1) {
@@ -205,7 +223,12 @@ void status_writer(char* client_fifo_path,Process processes[MAX_SIMULTANEOUS],in
     }
 
     while (read(log_fd, buffer_2, MAX_BUF_SIZE) > 0) {
-        write(client_fifo_fd, buffer_2, strlen(buffer_2));
+      check =  write(client_fifo_fd, buffer_2, strlen(buffer_2));
+        if (check == -1) {
+            perror("Failed to write to client FIFO");
+            memset(buffer_2, 0, MAX_BUF_SIZE);
+            continue;
+        }
         memset(buffer_2, 0, MAX_BUF_SIZE);
     }
 
