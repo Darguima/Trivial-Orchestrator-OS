@@ -11,6 +11,10 @@ datapipe/*
 #relatorio/*.pdf
 #relatorio/relatorio.pdf
 
+bin/*
+!bin/**/*.c
+!bin/**/Makefile
+
 valgrind-out.txt
 .vscode
 
