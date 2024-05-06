@@ -122,7 +122,7 @@ int main()
 {
     signal(SIGINT, signal_handler);  // CTRL + C
     signal(SIGTERM, signal_handler); // exit
-    Scheduler scheduler = create_scheduler(FCFS);
+    Scheduler scheduler = create_scheduler(SJF);
     char *buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
     char *response = malloc(sizeof(char) * MAX_BUF_SIZE);
 

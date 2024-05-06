@@ -13,6 +13,7 @@ datapipe/*
 
 bin/*
 !bin/**/*.c
+!bin/**/*.sh
 !bin/**/Makefile
 
 valgrind-out.txt
