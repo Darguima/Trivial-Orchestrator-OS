@@ -13,4 +13,6 @@ int enqueue_fcfs(FCFSQueue fcfs_queue, Process process);
 
 Process dequeue_fcfs(FCFSQueue fcfs_queue);
 
+Process* status_fcfs(FCFSQueue fcfs_queue);
+
 #endif
