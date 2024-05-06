@@ -233,6 +233,10 @@ void status_writer(char *client_fifo_path, Process processes[], int active_tasks
         }
 
         memset(buffer, 0, MAX_BUF_SIZE);
+        if (queue != NULL)
+        {
+            free(queue);
+        }
 
         // printing a line full of ----- to separate the scheduled tasks from the executed tasks
         snprintf(buffer, MAX_BUF_SIZE, "----------------------------------------\n");
