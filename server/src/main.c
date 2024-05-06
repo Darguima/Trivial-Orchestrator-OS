@@ -79,7 +79,11 @@ void handle_finished_task() {
                     perror("Failed to open log file");
                     exit(EXIT_FAILURE);
                 }
-                write(fd, buffer, strlen(buffer));
+                int check = write(fd, buffer, strlen(buffer));
+                if (check == -1) {
+                    perror("Failed to write to log file");
+                    exit(EXIT_FAILURE);
+                }
                 close(fd);
                 free(buffer);
                 remove_processes(i);
@@ -148,7 +152,10 @@ int main() {
                 }
                 sprintf(response, "Task ID = %d\n", id);
 
-                write(client_fifo_fd, response, strlen(response));
+                int check = write(client_fifo_fd, response, strlen(response));
+                if (check == -1) {
+                    perror("Failed to write to client FIFO");
+                }
                 close(client_fifo_fd);
 
         }

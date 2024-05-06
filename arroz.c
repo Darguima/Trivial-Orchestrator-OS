@@ -4,13 +4,9 @@
 #include <unistd.h>
 
 int main () {
-    printf("arroz é mt bom aaaaa\n"); 
-    printf("arroz é mt bom aaaaa\n");
-    fflush(stdout);
-    sleep(1);
-    printf("arroz é mt bom aaaaa\n");
-    printf("arroz é mt bom aaaaa\n");
-    fflush(stdout);
-    sleep(1);
+    sleep (5);
+    sleep (5);
+    printf("Hello, World!\n");
+
     return 0;
 }
