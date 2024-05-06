@@ -64,7 +64,6 @@ Process dequeue_sjf(SJFQueue sjf_queue)
 {
   if (sjf_queue->size == 0)
   {
-    printf("[DEBUG] - SJF queue is empty;\n");
     return NULL;
   }
 
