@@ -137,13 +137,15 @@ int main(int argc, char *argv[])
    if (argc != 4)
     {
         // print usage with argv[0] as the program name
-       char* usage = malloc(sizeof(char) * 100);
-         sprintf(usage, "Usage: %s <output directory> <max tasks> <scheduling policy>\n", argv[0]);
-        if (write(STDOUT_FILENO, usage, sizeof(usage)) == -1)
+        char * usage = malloc(sizeof(char) * 100);
+        sprintf(usage, "Usage: %s <output directory> <max tasks> <scheduling policy>\n", argv[0]);
+        if (write(STDOUT_FILENO, usage, strlen(usage)) == -1)
         {
             perror("Failed to write to STDOUT");
+            free (usage);
             exit(EXIT_FAILURE);
         }
+        free(usage);
         exit(EXIT_FAILURE);
     }
 
