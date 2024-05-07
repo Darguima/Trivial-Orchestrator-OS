@@ -6,6 +6,9 @@ build:
 	$(MAKE) build_orchestrator
 	$(MAKE) compile_commands
 
+client: build_client
+orchestrator: build_orchestrator
+
 build_client:
 	@echo "Building client..."
 	$(MAKE) -C client/

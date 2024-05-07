@@ -1,18 +1,17 @@
 server/server
 client/client
-#bin/*
-#!bin/*.c
-#!bin/*.h
-#!bin/Makefile
-datapipe/*
-!datapipe/.gitkeep
-!datapipe/*.c
-!datapipe/*.h
-#relatorio/*.pdf
-#relatorio/relatorio.pdf
+
+datapipe/c_fifo_*
+datapipe/taskoutput_*.txt
+datapipe/s_fifo
+datapipe/log.txt
+
+report/report.pdf
 
 bin/*
 !bin/**/*.c
+!bin/**/*.h
+!bin/**/*.sh
 !bin/**/Makefile
 
 valgrind-out.txt

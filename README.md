@@ -32,58 +32,23 @@ $ git clone https://github.com/Trivial-Orchestrator-OS
 $ git clone git@github.com:Darguima/Trivial-Orchestrator-OS.git
 ```
 
-### Installing dependencies 📦
-
-```bash
-# Debian / Ubuntu / Mint
-$ sudo apt-get install valgrind
-
-# Arch
-$ sudo pacman -S valgrind
-```
-
 #### Running the project 🏃‍♂️
-
-Since this project is split into two programs, you need choose which one you want to work.
-
-```bash
-# To work on client
-$ cd Trivial-Orchestrator-OS/client
-
-# To work on server
-$ cd Trivial-Orchestrator-OS/server
-```
 
 ##### Compiling the code 🛠️
 ```bash
-$ make
+# To work on client
+$ make client
 
-# With debug flags
-$ DEBUG=1 make
+$ ./client/client execute <estimated time> -u <command>
+$ ./client/client status
 
-# Executing program
-$ ./client <...args>
-$ ./server <...args>
+# To work on server
+$ make orchestrator
+
+$ ./server/server <output directory> <max tasks> <scheduling policy>
 ```
 
-##### Developing
-
-This function `clean`, `format` and `compile` in debug mode and `execute` the project
-
-```bash
-$ make dev <...args>
-```
-
-##### Running memory leaks checks
-
-Will run Valgrind to detect memory leaks.
-This also compiles the code, and pass default params to the executable.
-
-```bash
-$ make check-memory
-```
-
-##### Cleaning object files and executable
+##### Cleaning object files, executable and logs 🧹
 ```bash
 $ make clean
 ```

@@ -19,8 +19,7 @@
 #let lugar = "Braga, Portugal"
 
 #let autores = (
-    "AXXXXXX - Nome",
-    "AXXXXXX - Nome",
-    "AXXXXXX - Nome",
-    "AXXXXXX - Nome",
+    "A104537 - Afonso Pedreira",
+    "A104344 - Dário Guimarães",
+    "A104365 - Fábio Magalhães",
 )

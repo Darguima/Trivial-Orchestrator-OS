@@ -1,10 +1,13 @@
-# Typst - Relatório
+# Typst - Report
 
 ## Install
 
-- Ubuntu 
 ```bash
+# Ubuntu
 snap install typst
+
+# Arch
+sudo pacman -S typst
 ```
 
 ## Build
