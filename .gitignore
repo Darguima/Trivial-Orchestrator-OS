@@ -1,10 +1,11 @@
 server/server
 client/client
 
-datapipe/*
-!datapipe/.gitkeep
-!datapipe/*.c
-!datapipe/*.h
+datapipe/c_fifo_*
+datapipe/taskoutput_*.txt
+datapipe/s_fifo
+datapipe/log.txt
+
 report/report.pdf
 
 bin/*
