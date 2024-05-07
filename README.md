@@ -34,20 +34,21 @@ $ git clone git@github.com:Darguima/Trivial-Orchestrator-OS.git
 
 #### Running the project 🏃‍♂️
 
-Since this project is split into two programs, you need choose which one you want to work.
-
 ##### Compiling the code 🛠️
 ```bash
-$ make "client || orchestrator"
+# To work on client
+$ make client
 
-# Executing program
-$ ./client/client <...args>
 $ ./client/client execute <estimated time> -u <command>
+$ ./client/client status
+
+# To work on server
+$ make orchestrator
 
 $ ./server/server <output directory> <max tasks> <scheduling policy>
 ```
 
-##### Cleaning object files and executable
+##### Cleaning object files, executable and logs 🧹
 ```bash
 $ make clean
 ```
