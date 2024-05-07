@@ -22,6 +22,24 @@ else
   order=$2
 fi
 
+# Third Argument: minimum time
+if [ -z "$3" ]
+then
+  printf "Enter the minimum time: "
+  read min_time
+else
+  min_time=$3
+fi
+
+# Fourth Argument: maximum time
+if [ -z "$4" ]
+then
+  printf "Enter the maximum time: "
+  read max_time
+else
+  max_time=$4
+fi
+
 # Validate the second argument
 if [ "$order" != "asc" ] && [ "$order" != "desc" ] && [ "$order" != "random" ]
 then
@@ -41,9 +59,11 @@ then
   seq=$(shuf -i 1-$number)
 fi
 
+sum=0
+
 for i in $seq
 do
-  time=$((i * 1000))
+  time=$((i % ($max_time - $min_time + 1) + $min_time))
   if (( $i % 2 == 1 ))
   then
     command="hello"
@@ -51,5 +71,8 @@ do
     command="void"
   fi
 
-  ./client/client execute ${i} -p ./bin/"${command}" ${i}
+  sum=$((sum + time))
+  ./client/client execute ${time} -p ./bin/"${command}" ${time}
 done
+
+printf "\nTotal time: ${sum} seconds\n"
