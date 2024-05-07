@@ -235,5 +235,10 @@ Apesar de não termos uma conclusão clara até agora, o último cenário parece
 
 Assim, a nossa conclusão é que o SJF mostra-se sempre mais eficiente que o FCFS. Mesmo que inicialmente a diferença fosse mínima, o último teste deu-nos a certeza da decisão, uma vez que é também o teste mais completo. 
 
-== Servidor
-Texto
+= Conclusão
+
+Em suma, o desenvolvimento deste sistema de orquestração de tarefas permitiu-nos explorar e compreender em detalhe o funcionamento de um sistema de comunicação entre processos, bem como a execução de tarefas simples e compostas. A implementação deste orquestrador permitiu aprofundar a utilização das system calls, cruciais dentro do universo UNIX. Adicionalmente, podemos explorar diferentes políticas de escalonamento, bem como avaliar a sua eficiência e desempenho em diferentes cenários, permitindo-nos concluir que a política `SJF` é mais eficiente que a política `FCFS` na maioria dos cenários.
+
+Durante o desenrolar do projeto conseguimos sempre superar os desafios que nos foram colocados sem grandes problemas, no entanto isto não tornou o projeto menos interessante, uma vez que aborda um tema que nos é bastante cativante.
+
+Assim, este projeto permitiu-nos consolidar os conhecimentos adquiridos ao longo da unidade curricular de Sistemas Operativos, bem como desenvolver competências de programação em C e de resolução de problemas complexos, que são cruciais para o desenvolvimento de sistemas de software robustos e eficientes.
