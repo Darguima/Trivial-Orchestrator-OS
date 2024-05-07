@@ -1,18 +1,15 @@
 server/server
 client/client
-#bin/*
-#!bin/*.c
-#!bin/*.h
-#!bin/Makefile
+
 datapipe/*
 !datapipe/.gitkeep
 !datapipe/*.c
 !datapipe/*.h
-#relatorio/*.pdf
-relatorio/relatorio.pdf
+report/report.pdf
 
 bin/*
 !bin/**/*.c
+!bin/**/*.h
 !bin/**/*.sh
 !bin/**/Makefile
 
