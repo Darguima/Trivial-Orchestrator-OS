@@ -10,6 +10,7 @@
 typedef struct queue *Queue;
 typedef int (*EnqueueFunction)(Queue, Process);
 typedef Process (*DequeueFunction)(Queue);
+typedef Process* (*StatusFunction)(Queue);
 typedef void (*DestroyFunction)();
 
 typedef struct scheduler
@@ -20,6 +21,8 @@ typedef struct scheduler
 
   EnqueueFunction enqueue_fun;
   DequeueFunction dequeue_fun;
+
+  StatusFunction status_fun;
 
   DestroyFunction destroy_fun;
 
@@ -39,6 +42,7 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy)
 
     scheduler->enqueue_fun = (EnqueueFunction)enqueue_fcfs;
     scheduler->dequeue_fun = (DequeueFunction)dequeue_fcfs;
+    scheduler->status_fun = (StatusFunction)status_fcfs;
   }
   else if (scheduler->policy == SJF)
   {
@@ -47,6 +51,7 @@ Scheduler create_scheduler(SchedulePolicy schedule_policy)
 
     scheduler->enqueue_fun = (EnqueueFunction)enqueue_sjf;
     scheduler->dequeue_fun = (DequeueFunction)dequeue_sjf;
+    scheduler->status_fun = (StatusFunction)status_sjf;
   }
   else
   {
@@ -91,4 +96,8 @@ int enqueue_process(Scheduler scheduler, char *command, int estimated_runtime)
 Process dequeue_process(Scheduler scheduler)
 {
   return scheduler->dequeue_fun(scheduler->queue);
+}
+
+Process* scheduler_status(Scheduler scheduler) {
+  return scheduler->status_fun(scheduler->queue);
 }

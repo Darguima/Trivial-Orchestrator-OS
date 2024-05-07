@@ -170,10 +170,13 @@ char *get_command_pipeline(char *command)
     return result;
 }
 
-void status_writer(char *client_fifo_path, Process processes[MAX_SIMULTANEOUS], int active_tasks)
+void status_writer(char *client_fifo_path, Process processes[], int active_tasks, Scheduler scheduler)
 {
     if (fork() == 0)
     {
+
+
+
         char *buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
         if (buffer == NULL)
         {
@@ -182,12 +185,70 @@ void status_writer(char *client_fifo_path, Process processes[MAX_SIMULTANEOUS], 
         }
 
         int client_fifo_fd = open(client_fifo_path, O_WRONLY);
+
         if (client_fifo_fd == -1)
         {
             perror("Error opening client FIFO");
             free(buffer);
             exit(EXIT_FAILURE);
         }
+
+        // writing the header of the Scheduled tasks
+        snprintf(buffer, MAX_BUF_SIZE, "Scheduled\n");
+        
+        if ( write(client_fifo_fd, buffer, strlen(buffer)) == -1)
+        {
+            perror("Failed to write to client FIFO");
+            free(buffer);
+            close(client_fifo_fd);
+            exit(EXIT_FAILURE);
+        }
+        memset(buffer, 0, MAX_BUF_SIZE);
+
+        // getting the queue elements of the scheduler
+
+        Process *queue = scheduler_status(scheduler);
+        int index = 0;
+        while ( queue != NULL && queue[index] != NULL)
+        {
+            char *command = get_command(queue[index]->command);
+            if (command == NULL)
+            {
+                perror("Failed to get command");
+                memset(buffer, 0, MAX_BUF_SIZE);
+                continue;
+            }
+            snprintf(buffer, MAX_BUF_SIZE, "Task ID = %d %s\n", queue[index]->id, command);
+            int check = write(client_fifo_fd, buffer, strlen(buffer));
+            if (check == -1)
+            {
+                perror("Failed to write to client FIFO");
+                free(command);
+                memset(buffer, 0, MAX_BUF_SIZE);
+                continue;
+            }
+            memset(buffer, 0, MAX_BUF_SIZE);
+            free(command);
+            index++;
+        }
+
+        memset(buffer, 0, MAX_BUF_SIZE);
+        if (queue != NULL)
+        {
+            free(queue);
+        }
+
+        // printing a line full of ----- to separate the scheduled tasks from the executed tasks
+        snprintf(buffer, MAX_BUF_SIZE, "----------------------------------------\n");
+        if (write(client_fifo_fd, buffer, strlen(buffer)) == -1)
+        {
+            perror("Failed to write to client FIFO");
+            free(buffer);
+            close(client_fifo_fd);
+            exit(EXIT_FAILURE);
+        }
+        memset(buffer, 0, MAX_BUF_SIZE);
+
 
         // Send the header
         snprintf(buffer, MAX_BUF_SIZE, "Executing\n");
@@ -199,7 +260,7 @@ void status_writer(char *client_fifo_path, Process processes[MAX_SIMULTANEOUS], 
             close(client_fifo_fd);
             exit(EXIT_FAILURE);
         }
-        // memset(buffer, 0, MAX_BUF_SIZE);
+        memset(buffer, 0, MAX_BUF_SIZE);
 
         // Send the processes in execution
         for (int i = 0; i < active_tasks; i++)
@@ -223,21 +284,27 @@ void status_writer(char *client_fifo_path, Process processes[MAX_SIMULTANEOUS], 
             memset(buffer, 0, MAX_BUF_SIZE);
             free(command);
         }
-        free(buffer);
 
-        char *buffer_2 = malloc(sizeof(char) * MAX_BUF_SIZE);
-        if (buffer_2 == NULL)
+         snprintf(buffer, MAX_BUF_SIZE, "----------------------------------------\n");
+        if (write(client_fifo_fd, buffer, strlen(buffer)) == -1)
         {
-            perror("Failed to allocate memory for buffer");
+            perror("Failed to write to client FIFO");
+            free(buffer);
+            close(client_fifo_fd);
             exit(EXIT_FAILURE);
         }
+        memset(buffer, 0, MAX_BUF_SIZE);
+        
 
-        snprintf(buffer_2, MAX_BUF_SIZE, "Finished\n");
-        check = write(client_fifo_fd, buffer_2, strlen(buffer_2));
+        
+       
+
+        snprintf(buffer, MAX_BUF_SIZE, "Finished\n");
+        check = write(client_fifo_fd, buffer, strlen(buffer));
         if (check == -1)
         {
             perror("Failed to write to client FIFO");
-            free(buffer_2);
+            free(buffer);
             close(client_fifo_fd);
             exit(EXIT_FAILURE);
         }
@@ -246,25 +313,25 @@ void status_writer(char *client_fifo_path, Process processes[MAX_SIMULTANEOUS], 
         if (log_fd == -1)
         {
             perror("Error opening log file");
-            free(buffer_2);
+            free(buffer);
             exit(EXIT_FAILURE);
         }
 
-        while (read(log_fd, buffer_2, MAX_BUF_SIZE) > 0)
+        while (read(log_fd, buffer, MAX_BUF_SIZE) > 0)
         {
-            check = write(client_fifo_fd, buffer_2, strlen(buffer_2));
+            check = write(client_fifo_fd, buffer, strlen(buffer));
             if (check == -1)
             {
                 perror("Failed to write to client FIFO");
-                memset(buffer_2, 0, MAX_BUF_SIZE);
+                memset(buffer, 0, MAX_BUF_SIZE);
                 continue;
             }
-            memset(buffer_2, 0, MAX_BUF_SIZE);
+            memset(buffer, 0, MAX_BUF_SIZE);
         }
 
         close(log_fd);
         close(client_fifo_fd);
-        free(buffer_2);
+        free(buffer);
         _exit(0);
     }
 }
@@ -370,6 +437,7 @@ void execute_command_pipeline(char **cmd_args, int input_fd, int output_fd)
     if (output_fd != STDOUT_FILENO)
     {
         dup2(output_fd, STDOUT_FILENO);
+        dup2(output_fd, STDERR_FILENO);
         close(output_fd);
     }
 
@@ -378,7 +446,7 @@ void execute_command_pipeline(char **cmd_args, int input_fd, int output_fd)
     exit(EXIT_FAILURE);
 }
 
-void execute_pipeline_process(Process process)
+void execute_pipeline_process(Process process,char* task_output)
 {
     int num_pipes = 0;
     char *command = get_command_pipeline(process->command);
@@ -418,7 +486,7 @@ void execute_pipeline_process(Process process)
             {
                 // Last command, redirect stdout to a file
                 char output_file_path[256];
-                sprintf(output_file_path, "%soutput_%d.txt", TASKS_PATH, process->id);
+                sprintf(output_file_path, "%staskoutput_%d.txt", task_output , process->id);
                 int fd = open(output_file_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
                 if (fd < 0)
                 {
@@ -451,11 +519,11 @@ void execute_pipeline_process(Process process)
         ;
 }
 
-void execute_simple_process(Process process)
+void execute_simple_process(Process process,char* task_output)
 {
     char **args = parse_command(process->command); // this memory will be freed by the execvp function
     char file_process[256];                        // format is process_id.txt
-    sprintf(file_process, "%soutput_%d.txt", TASKS_PATH, process->id);
+    sprintf(file_process, "%staskoutput_%d.txt", task_output, process->id);
     int fd = open(file_process, O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (fd == -1)
     {

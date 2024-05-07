@@ -19,4 +19,6 @@ int enqueue_process(Scheduler scheduler, char *command, int estimated_runtime);
 
 Process dequeue_process(Scheduler scheduler);
 
+Process* scheduler_status(Scheduler scheduler);
+
 #endif

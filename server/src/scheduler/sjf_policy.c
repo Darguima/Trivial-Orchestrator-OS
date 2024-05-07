@@ -82,6 +82,19 @@ Process dequeue_sjf(SJFQueue sjf_queue)
   return process;
 }
 
+Process* status_sjf(SJFQueue sjf_queue) {
+  Process* status = malloc(sizeof(Process) * (long unsigned int)(sjf_queue->size + 1));
+
+  for (int i = 0; i < sjf_queue->size; i++)
+  {
+    status[i] = sjf_queue->arr[i];
+  }
+
+  status[sjf_queue->size] = NULL;
+
+  return status;
+}
+
 void bubble_down(SJFQueue sjf_queue, int index)
 {
   int swap_index = -1;

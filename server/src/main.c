@@ -16,8 +16,10 @@
 #include "commands/command_interpreter.h"
 
 int active_tasks = 0;                // Active tasks counter
-Process processes[MAX_SIMULTANEOUS]; // Array to store the processes in execution
+Process* processes; // Array to store the processes in execution
+int max_simultaneous = 0 ;                // Maximum number of simultaneous tasks
 int process_count = 0;               // Number of processes (fifos) in execution
+char task_path[MAX_FIFO_NAME];      // Path to the tasks directory
 
 void execute_process(Process process)
 {
@@ -33,30 +35,36 @@ void execute_process(Process process)
     { // Child process
         if (is_a_simple_process(process->command))
         {
-            execute_simple_process(process);
+            execute_simple_process(process, task_path);
         }
         else
         {
-            execute_pipeline_process(process);
+            execute_pipeline_process(process,task_path);
         }
         _exit(EXIT_SUCCESS);
     }
     else
     {
         process->process_id = pid;
-        if (active_tasks < MAX_SIMULTANEOUS)
+        if (active_tasks < max_simultaneous)
         {
             processes[active_tasks++] = process;
         }
     }
 }
 
-void remove_processes(int index)
-{
-    if (index < active_tasks - 1)
-    {
-        processes[index] = processes[active_tasks - 1];
+void remove_processes(int index) {
+    if (index < 0 || index >= active_tasks) {
+        fprintf(stderr, "Index out of bounds\n");
+        return;
     }
+
+    // Moving all the elements to the left
+    for (int i = index; i < active_tasks - 1; i++) {
+        processes[i] = processes[i + 1];
+    }
+
+    // Decrementing the number of active tasks
     active_tasks--;
 }
 
@@ -73,12 +81,15 @@ void handle_finished_task()
                 // calculate duration of the process in seconds
                 struct timeval end_time;
                 gettimeofday(&end_time, NULL);
-                double duration = (double)(end_time.tv_sec - processes[i]->start_time.tv_sec) + (double)(end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
+                // getting duration in seconds 
+                double duration = (end_time.tv_sec - processes[i]->start_time.tv_sec) + (end_time.tv_usec - processes[i]->start_time.tv_usec) / 1000000.0;
+               
                 char *buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
 
                 char *command = get_command(processes[i]->command);
 
-                sprintf(buffer, "%d %s %.4fs\n", processes[i]->id, command, duration);
+              sprintf(buffer, "%d %s %.4f seconds\n", processes[i]->id, command, duration);
+              
                 free(command);
                 // writing to log file
                 int fd = open(LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
@@ -94,7 +105,7 @@ void handle_finished_task()
                     exit(EXIT_FAILURE);
                 }
 
-                printf("[DEBUG] - Process %d has finished. Duration: %.6f seconds. Command: %s\n", processes[i]->id, duration, processes[i]->command);
+                printf("[DEBUG] - Process %d has finished. Duration: %.4fseconds. Command: %s\n", processes[i]->id, duration, processes[i]->command);
 
                 close(fd);
                 free(buffer);
@@ -118,11 +129,54 @@ void signal_handler(int signum)
     }
 }
 
-int main()
+// server will receive as input the output directory of the commands, the number of max tasks that can be executed simultaneously and the scheduling policy
+
+int main(int argc, char *argv[])
 {
+
+   if (argc != 4)
+    {
+        // print usage with argv[0] as the program name
+       char* usage = malloc(sizeof(char) * 100);
+         sprintf(usage, "Usage: %s <output directory> <max tasks> <scheduling policy>\n", argv[0]);
+        if (write(STDOUT_FILENO, usage, sizeof(usage)) == -1)
+        {
+            perror("Failed to write to STDOUT");
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_FAILURE);
+    }
+
+    max_simultaneous = atoi(argv[2]);
+    if (max_simultaneous <= 0)
+    {
+        if (write(STDOUT_FILENO,"Invalid number of max tasks\n", 29) == -1)
+        {
+            perror("Failed to write to STDOUT");
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_FAILURE);
+    }
+
+    if (strcmp(argv[3], "FCFS") != 0 && strcmp(argv[3], "SJF") != 0)
+    {
+        if (write(STDOUT_FILENO,"Invalid scheduling policy\n", 27) == -1)
+        {
+            perror("Failed to write to STDOUT");
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_FAILURE);
+    }
+    // Initialize the array of processes
+    processes = malloc(sizeof(Process) * max_simultaneous);
+    // defining task path as the output directory
+    strcpy(task_path, argv[1]); 
+
+
     signal(SIGINT, signal_handler);  // CTRL + C
     signal(SIGTERM, signal_handler); // exit
-    Scheduler scheduler = create_scheduler(SJF);
+    SchedulePolicy policy = strcmp(argv[3], "FCFS") == 0 ? FCFS : SJF;
+    Scheduler scheduler = create_scheduler(policy);
     char *buffer = malloc(sizeof(char) * MAX_BUF_SIZE);
     char *response = malloc(sizeof(char) * MAX_BUF_SIZE);
 
@@ -149,7 +203,7 @@ int main()
 
             if (strcmp(command_args[1], "status") == 0)
             {
-                status_writer(client_fifo_path, processes, active_tasks);
+                status_writer(client_fifo_path, processes, active_tasks,scheduler);
                 free(command_args);
                 free(client_fifo_path);
                 memset(buffer, 0, MAX_BUF_SIZE);
@@ -187,7 +241,7 @@ int main()
             memset(response, 0, MAX_BUF_SIZE);
         }
 
-        while (active_tasks < MAX_SIMULTANEOUS)
+        while (active_tasks < max_simultaneous)
         {
             Process process = dequeue_process(scheduler);
             if (process != NULL)

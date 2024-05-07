@@ -13,4 +13,6 @@ int enqueue_sjf(SJFQueue sjf_queue, Process process);
 
 Process dequeue_sjf(SJFQueue sjf_queue);
 
+Process* status_sjf(SJFQueue sjf_queue);
+
 #endif
