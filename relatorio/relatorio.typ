@@ -38,6 +38,8 @@ Todas as tarefas que não conseguem ser executadas de forma imediata, são coloc
 = Processos simples
  A execução de tarefas simples é feita através da função execute_simple_process, que é responsável não só pela execução do comando, como também por redirecionar a saída do mesmo para um ficheiro de texto, que é unicamente identificado. O uso do mecanismo de dup2 é crucial para redirecionar a saída do comando e dos erros para o ficheiro de texto, garantindo que a informação é guardada de forma correta e sem erros.
 Para facilitar a execução do comando,a instrução recebida é cuidadosamente fragmentada em tokens. Esta segmentação é crucial porque o execvp, utilizado para executar o comando, requer que o comando e os seus argumentos sejam fornecidos como um array de strings terminado em NULL. Esse processo de tokenização assegura que o mesmo seja interpretado e executado corretamente pelo sistema, permitindo uma gestão eficaz dos recursos do servidor e a correta execução das tarefas conforme solicitado pelo cliente.
+Comparativamente, a execução de processos simples é consideravelmente mais direta e menos trabalhosa do que a execução de processos compostos, uma vez que não envolve a comunicação entre processos e a gestão de pipes. Assim, esta simplicidade permite uma implementação mais rapida e menos propensa a erros.
+
 
 
 == Processos compostos
