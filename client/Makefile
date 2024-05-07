@@ -35,25 +35,3 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	@find . -type f -name '*.o' -delete && echo "[Cleaning] Object Files"
 	@rm -f ${EXECUTABLE} && echo "[Cleaning] ${EXECUTABLE}"
-
-check-memory:
-# Check if valgrind is installed
-	@command -v valgrind &> /dev/null || echo "[Warning] Please install `valgrind`. Read documentation."
-# Run valgrind against the executables
-	@DEBUG=1 make -s && echo "[Compiling]"
-	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./$(EXECUTABLE) $(if $(MAKE_ARGS),$(MAKE_ARGS),"#default args") 
-
-dev:
-	@printf "=====  Cleaning, Formating, Compiling and executing projects  =====\n"
-	@make -s clean
-	@make -s format
-	@DEBUG=1 make -s && echo "[Compiling]"
-	@printf "===================================================================\n"
-
-	@./$(EXECUTABLE) $(MAKE_ARGS)
-
-	@printf "===================================================================\n"
-
-# Ignore unmatched commands - to allow storing the arguments inside a variable MAKE_ARGS
-%:
-	@:
