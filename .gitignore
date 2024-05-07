@@ -9,7 +9,7 @@ datapipe/*
 !datapipe/*.c
 !datapipe/*.h
 #relatorio/*.pdf
-#relatorio/relatorio.pdf
+relatorio/relatorio.pdf
 
 bin/*
 !bin/**/*.c
