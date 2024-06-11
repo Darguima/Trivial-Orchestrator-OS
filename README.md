@@ -17,7 +17,7 @@ In some words, the goal of this project was to create two C programs. The first 
 
 The server have the task of asynchronously execute all the tasks, being always available to receive new tasks, and managing all them in the best way.
 
-If you want, you can read the [project statement](enunciado.pdf) (in Portuguese).
+If you want, you can read the [project statement](./report/enunciado.pdf) (in Portuguese).
 
 ### About the Code 🧑‍💻
 
